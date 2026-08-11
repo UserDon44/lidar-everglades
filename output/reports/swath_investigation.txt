@@ -1,0 +1,68 @@
+Flight-line structure, and whether it explains the SE-corner anomaly and the canal-strip degradation
+==============================================================================
+generated : 2026-08-11T09:43:20
+script    : scripts/investigate_swaths.py
+git commit: ac9dfd1
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  tile            : USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1557n0456.laz
+  swath identity  : PointSourceId
+  overlap metric  : count of distinct PointSourceIds per 10 m cell
+  corner region   : SE 300 m square (X >= 1557700, Y <= 456300)
+  why that region : chosen from the visual anomaly in fig01 BEFORE computing any statistic, so it is not fitted to the answer
+  timing          : GpsTime range per swath and gaps between swaths
+  prompted by     : three independent metrics disrupted in the same corner, plus canal strips degrading at the junction -- both suggest geometry, not terrain
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+total points 16,889,632
+distinct PointSourceId values: 2
+
+   PSID       points   share               X range               Y range  ground%
+----------------------------------------------------------------------------------
+  34101    8,475,173  50.18%    1557000-1558000        456000-456892        6.84%
+  34012    8,414,459  49.82%    1557000-1558000        456237-457000        8.02%
+
+GPS timing per swath (seconds, adjusted-standard GPS time):
+   PSID          t_start            t_end   duration
+------------------------------------------------------
+  34101     228192568.18     228192584.66      16.5s
+  34012     228121321.76     228121338.98      17.2s
+
+gaps between consecutive swaths, by start time:
+  PSID 34012 -> 34101: +71229.2s  <-- long gap: separate pass or turn
+
+swaths per 10 m cell:
+  0 swath(s):   1.98% of tile
+  1 swath(s):  48.83% of tile
+  2 swath(s):  49.19% of tile
+
+----------------------------------------------------------------------
+SE CORNER vs REST OF TILE
+----------------------------------------------------------------------
+metric                                    SE corner     rest of tile
+----------------------------------------------------------------------
+all-return density (pts/m2)                   11.15            17.46
+ground density (pts/m2)                       1.290            1.252
+ground share of points (%)                    11.58             7.17
+mean swaths per cell                           0.98             1.52
+cells with 0 swaths (%)                        3.33             1.85
+cells with 1 swath (%)                        95.44            44.22
+
+PointSourceIds present in the SE corner: [np.uint16(34012), np.uint16(34101)]
+PointSourceIds present tile-wide          : [np.uint16(34012), np.uint16(34101)]
+
+----------------------------------------------------------------------
+DOES COVERAGE DEPEND ON SWATH COUNT?
+(the cell-size sweep averages across all of this)
+----------------------------------------------------------------------
+swaths in cell          cells   no ground @1 m   no returns @1 m
+------------------------------------------------------------------
+0                      19,800          100.00%           100.00%
+1                     488,300           44.24%             5.23%
+2                     491,900           47.69%             3.11%
+TILE-WIDE           1,000,000           47.04%             6.06%
+
+swath-count grid saved for figure use (output/dem/swath_count_10m.npy, 10 m)

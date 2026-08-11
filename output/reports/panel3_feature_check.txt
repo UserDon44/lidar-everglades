@@ -1,0 +1,59 @@
+What the green strips and the SE-corner disruption in fig01 panel 3 actually are
+==============================================================================
+generated : 2026-08-11T09:46:29
+script    : scripts/check_panel3_features.py
+git commit: ac9dfd1
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  green mask           : all-return count > 0 AND ground count == 0, 3 m
+  crest mask           : vendor > marsh median + 2.0 m
+  corner               : SE 300 m square
+  S-151 coordinate     : -80.50985262, 26.01151058 (WGS84, SFWMD AHED)
+  reading A under test : green strips are the levee crown
+  reading B under test : SE disruption is the S-151 works
+  why measured first   : a caption naming a feature is a claim about the data; this project has already captioned a difference between two byte-identical rasters
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+READING A: are the green strips the levee crown?
+======================================================================
+crest cells                 : 706
+green cells                 : 3,956
+cells that are BOTH         : 6 (0.85% of crest, 0.15% of green)
+
+green cells by distance from the crest:
+  0-3 m            6 green of     706 cells (  0.8% green)
+  3-9 m           62 green of   1,444 cells (  4.3% green)
+  9-21 m         217 green of   2,488 cells (  8.7% green)
+  21-51 m        606 green of   7,256 cells (  8.4% green)
+  >51 m        3,065 green of  98,995 cells (  3.1% green)
+
+tile-wide green rate: 3.6%
+green rate ON crest : 0.8%
+
+  VERDICT A: REFUTED. The crest is NOT green -- the vendor classifies
+  ground there readily. The strips are something else; see below.
+
+  elevation of green cells : median 2.437 m (+0.073 vs marsh)
+  elevation of crest cells : median 4.733 m (+2.369 vs marsh)
+  green cells within 21 m of crest: 7.2%
+
+
+READING B: is the SE disruption the S-151 works?
+======================================================================
+S-151 projected to EPSG:6350 : 1557843.9, 456241.2
+tile bounds                  : X 1557000-1558000, Y 456000-457000
+inside the tile              : True
+inside the SE 300 m corner    : True
+distance from SE corner point: 287 m
+
+  100 m box centred on S-151 (row 252, col 281):
+    elevation  median 2.450 m  max 4.848 m  (+2.48 above marsh)
+    ground count/cell median 10 (tile marsh median 7)
+    cells >1 m above marsh: 27.8%
+
+======================================================================
+Both readings are now measured rather than inferred; the captions can
+state whichever survived.
