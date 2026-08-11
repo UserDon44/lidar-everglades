@@ -107,6 +107,8 @@ def main():
     print(f"{'tag':<24} {'mean':>8} {'median':>8} {'RMSE':>8} "
           f"{'>0.15m':>8} {'>0.30m':>8}")
     print("=" * 82)
+    rmses = {}
+    tails = {}
     for tag in TAGS:
         p = DEM / f"dem_{tag}.tif"
         if not p.exists():
@@ -115,10 +117,23 @@ def main():
         a = load(p)
         d = (a - v)[marsh_only]
         d = d[np.isfinite(d)]
+        rmse = float(np.sqrt((d**2).mean()))
+        rmses[tag] = rmse
+        tails[tag] = 100.0 * float(np.mean(d > 0.15))
         print(f"{tag:<24} {d.mean():>+8.4f} {np.median(d):>+8.4f} "
-              f"{np.sqrt((d**2).mean()):>8.4f} "
+              f"{rmse:>8.4f} "
               f"{100*np.mean(d > 0.15):>7.2f}% {100*np.mean(d > 0.30):>7.2f}%")
     print("=" * 82)
+    base, fine = "w3_s0.05_t0.15", "c1.5_w3_s0.05_t0.15"
+    if base in rmses and fine in rmses:
+        ratio = rmses[fine] / rmses[base]
+        print("")
+        print(f"marsh RMSE ratio, cell 1.5 m vs cell 3.0 m (delivered): "
+              f"{ratio:.3f}x  ({100*(ratio-1):.0f}% higher)")
+        if tails.get(base):
+            print(f"marsh cells >0.15 m above vendor, cell 1.5 m vs 3.0 m: "
+                  f"{tails[fine]:.2f}% vs {tails[base]:.2f}% = "
+                  f"{tails[fine]/tails[base]:.0f}x increase")
     print("""
 READING THIS
 

@@ -116,14 +116,25 @@ across ground nobody measured.
 observed the canal bed; both interpolate across it. That the two
 interpolations agree to 0.069 m says only that they were computed
 similarly. The delivered surface must not be read as bathymetry, and the
-canal is shown at roughly 2.28 m where there is in fact open water.
+canal surface is interpolated at a median **2.374 m** (cells with zero
+returns at 3 m, sampled on the aligned vendor surface) where there is in
+fact open water.
+
+*Correction, 2026-08-11*: this figure previously read "roughly 2.28 m".
+That value does not reproduce under any tested definition -- median
+2.374, mean 2.365, largest-water-body 2.381, p25 2.344 --
+and its method was never recorded, so it cannot be checked. It is
+replaced by a value whose definition is stated. Same failure as the
+predecessor project's CHM cluster count, which also had no recorded
+search radius and also did not reproduce.
 
 ## 5. Limitations
 
 ### 5.1 The L-67A crown is truncated by ~0.76 m — accepted and documented
 
 **The delivered surface truncates the L-67A embankment crown.** Crest
-cells sit a median **0.911 m** (mean 0.710 m) below the vendor surface;
+cells sit a median **−0.911 m** (mean −0.710 m) relative to the
+vendor surface;
 equivalently, median crest height above the marsh datum falls from
 **2.369 m to 1.612 m, a 0.757 m reduction**. This affects 706 cells,
 0.64% of the tile.
@@ -166,9 +177,16 @@ control, it also under-filters vegetation:
 | `cell` 3.0 m (delivered) | +0.0416 m | 0.0497 m | **0.15%** |
 | `cell` 1.5 m | +0.0637 m | 0.0760 m | **2.34%** |
 
-A **23× increase** in marsh cells sitting above the vendor surface, and a
-53% higher marsh RMSE, across the 94.6% of the tile that is the actual
-deliverable. The crown is bought by degrading everything else.
+A **15× increase** in marsh cells sitting above the vendor surface
+(2.34% vs 0.15%), and a 53% higher marsh RMSE, across the 94.6% of the
+tile that is the actual deliverable.
+
+*Correction, 2026-08-11*: this read "23×" until the deliverable-number
+audit flagged it. 23× is 2.34% ÷ 0.10%, but 0.10% is the tail for
+`w6`–`w50`; the delivered configuration is `w3`, whose tail is 0.15%.
+The comparison was against the wrong baseline — the same failure class
+as the retracted embankment-width derivation in `parameter_derivation.md`.
+The conclusion is unchanged; only its magnitude was overstated. The crown is bought by degrading everything else.
 
 **Decision: accept the truncation.** The alternative — a dual-cell
 composite, fine near the levee and coarse in the marsh — would trade a
@@ -180,8 +198,13 @@ it is stated here rather than discovered downstream.
 
 ### 5.2 Bank flanks are classified non-ground
 
-Terrain slope on this tile is **bimodal**: median 0.489%, p90 2.33%, but
-p99 **20.4%** and max 50.8% — a flat marsh plane plus engineered banks.
+Terrain slope on this tile is **bimodal**: median 0.489%, p90 2.334%, but
+p99 **20.372%** and max 50.796% — a flat marsh plane plus engineered
+banks. Measured by `gdaldem slope -p` on the vendor 3 m surface **as
+originally gridded** (335x334, point-derived extent). On the aligned
+333x333 grid the same measurement gives 0.490 / 2.318 / 20.442 / 51.088:
+the difference is grid phase, not disagreement, and is the same effect
+quantified in §5.5.
 `slope = 0.05` is set from the marsh, because setting it from the banks
 would put the radius-1 cutoff at 0.6 m, above the 90th percentile of
 vegetation height, and almost nothing would be removed. The cost is that
@@ -203,7 +226,7 @@ deliberately trading one error against the other.
 
 **6.07%** of the tile returns nothing at all; 95.7% of that area lies in
 clusters larger than 100 m², i.e. the canals rather than scattered
-dropout. This is water absorbing the 1064 nm pulse — irreducible, not a
+dropout. This is water absorbing the 1064 nm pulse [cited: sensor class specification] — irreducible, not a
 classification problem. See §4 on why the interpolated canal surface must
 not be presented as measured terrain.
 
@@ -213,7 +236,8 @@ Classification near the tile edge lacks neighbourhood context from
 outside the tile, and no buffering from adjacent tiles was implemented
 here. The effect is bounded by SMRF's reach — at `window = 3 m`,
 `ceil(window/cell) = 1` cell — so it is far smaller than in the prior
-project, where a 122 ft reach produced measurable seam discontinuity.
+project, where a 122 ft reach [cited: lidar-portfolio CLAUDE.md]
+produced measurable seam discontinuity.
 Not measured on this tile; noted as unquantified.
 
 ## 6. Deliverables

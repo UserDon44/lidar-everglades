@@ -1,0 +1,89 @@
+Vendor baseline characterization, re-derived from the point cloud
+==============================================================================
+generated : 2026-08-11T09:18:06
+script    : scripts/characterize_vendor.py
+git commit: 638fc18
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  tile            : USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1557n0456.laz
+  grid            : origin 1557000.0/456000.0, 1000 m square
+  counting        : binmode=true (true per-cell bins). PDAL's default radius search inflates density several-fold
+  cell sweep      : rasterized once at 0.5 m, aggregated by [1, 2, 4, 6, 10, 20] -- exact for counts, and guarantees identical grid phase across sizes
+  no ground       : share of cells whose class-2 count is 0
+  no returns      : share of cells whose all-return count is 0
+  relief          : class-2 Z, p1 to p99 (excludes single-point extremes)
+  slope source    : gdaldem slope -p on the vendor 3 m surface
+  overlap         : vendor 3 m surface sampled at every point; residual split by classification
+  canal elevation : median vendor 3 m elevation over cells with zero returns at 1 m
+  purpose         : these numbers were computed interactively in an earlier session and never scripted; EXPECTED holds what the memo claims today
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+points 16,889,632   class-2 1,255,203
+ground Z p1 2.050  p99 4.860
+
+  cell   no ground   no returns  median g/cell
+------------------------------------------------
+  0.5m      76.79%        7.24%            0.0
+  1.0m      47.04%        6.06%            1.0
+  2.0m      18.11%        5.29%            3.0
+  3.0m       8.29%        4.72%            8.0
+  5.0m       4.63%        3.79%           22.0
+ 10.0m       2.21%        1.98%           89.0
+
+slope on ORIGINAL grid (335, 334): median 0.489  p90 2.334  p99 20.372  max 50.796
+slope on ALIGNED  grid (333, 333): median 0.490  p90 2.318  p99 20.442  max 51.088
+
+canal elevation by definition: median 2.374  mean 2.365  largest-body 2.381  p25 2.344
+==============================================================================
+RE-DERIVED vs WHAT THE MEMO CLAIMS TODAY
+==============================================================================
+quantity                                     memo   re-derived       
+------------------------------------------------------------------------------
+ground share of points (%)                  7.432        7.432     ok
+all-return density (pts/m2)                16.890       16.890     ok
+ground density (pts/m2)                     1.260        1.255     ok
+ground relief p1-p99 (m)                    2.810        2.810     ok
+no ground @0.5 m (%)                       76.790       76.789     ok
+no ground @1 m (%)                         47.040       47.042     ok
+no ground @2 m (%)                         18.110       18.111     ok
+no ground @3 m (%)                          8.310        8.292     ok
+no ground @5 m (%)                          4.630        4.630     ok
+no ground @10 m (%)                         2.210        2.210     ok
+no returns @1 m (%)                         6.060        6.061     ok
+no returns @3 m (%)                         4.720        4.725     ok
+water dropout (%)                           6.070        6.061     ok
+vegetation blocked (%)                     41.100       40.982     ok
+ground present (%)                         52.890       52.958     ok
+slope median (%)                            0.489        0.490     ok
+slope p90 (%)                               2.330        2.318 << DIFFERS
+slope p99 (%)                              20.400       20.442     ok
+slope max (%)                              50.800       51.088 << DIFFERS
+class-2 residual std (m)                    0.072        0.071     ok
+class-2 p5-p95 spread (m)                   0.133        0.133     ok
+unclassified p50 above ground (m)           0.240        0.241     ok
+unclassified below 0.15 m (%)              40.600       40.477     ok
+unclassified below 0.30 m (%)              56.100       56.033     ok
+canal surface elevation (m)                 2.280        2.374 << DIFFERS
+==============================================================================
+
+3 DISCREPANCIES -- both values shown, nothing auto-corrected:
+
+  slope p90 (%)
+    memo carries : 2.33
+    re-derived   : 2.3176
+    difference   : -0.0124
+
+  slope max (%)
+    memo carries : 50.8
+    re-derived   : 51.0880
+    difference   : +0.2880
+
+  canal surface elevation (m)
+    memo carries : 2.28
+    re-derived   : 2.3741
+    difference   : +0.0941
+
+  Decide which is right by reading the method, not by preferring the newer number.

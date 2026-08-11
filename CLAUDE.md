@@ -168,7 +168,10 @@ no ground. These require different handling: vegetation is a
 classification problem SMRF can attack, water is irreducible absence.
 
 **The vendor DEM at 3 m interpolates straight across the canal**, giving
-~2.28 m where there is open water. Any deliverable must state that rather
+a median **2.374 m** where there is open water (cells with zero returns
+at 3 m, aligned vendor surface). *Corrected 2026-08-11 from "~2.28 m",
+which reproduces under no tested definition and whose method was never
+recorded — see qc_memo §4.* Any deliverable must state that rather
 than presenting an interpolated water surface as terrain.
 
 ## Next steps, in order
@@ -270,8 +273,8 @@ everywhere) was measured over marsh cells with the embankment plus a
 
 **Rejected for `window`** — identical to four decimals across an 8×
 range, so the effect is genuinely confined to SE scale. **Confirmed for
-`cell`** — the finer cell buys its crown back with a 23× increase in
-marsh cells sitting above the vendor surface. Its crest number alone
+`cell`** — the finer cell buys its crown back with a 15× increase in
+marsh cells sitting above the vendor surface (2.34% vs 0.15%). Its crest number alone
 would have recommended it.
 
 **Four limitations, none tunable away**: levee crown truncated ~0.76 m
@@ -429,3 +432,50 @@ lidar-everglades/
   output/reports/      characterization + memos — TRACKED.
   docs/                session-log.md
 ```
+
+
+## RESOLVED: the characterization reproduces (2026-08-11)
+
+`scripts/characterize_vendor.py` re-derives the vendor baseline from the
+point cloud and checks every value against what the memo claims, rather
+than silently recomputing. Dump: `output/reports/vendor_characterization.txt`.
+
+**22 of 25 match.** The foundation of this project — the cell-size sweep,
+the two void classes, the density and relief figures — reproduces
+exactly. Three did not, and none was a mistake in the underlying work:
+
+| quantity | memo | re-derived | cause |
+|---|---|---|---|
+| slope p90 | 2.33% | 2.318% | computed on the **original** 335×334 grid, not the aligned 333×333 |
+| slope max | 50.8% | 51.088% | same |
+| canal elevation | 2.28 m | **2.374 m** | **does not reproduce** — no recorded method |
+
+The slope figures are correct *for the grid they were computed on*; both
+grids are now reported and the memo says which. The canal figure is a
+genuine loss: median 2.374, mean 2.365, largest-body 2.381, p25 2.344 —
+none is 2.28, and its definition was never written down. Same failure as
+the predecessor project's CHM cluster count.
+
+**A wrong-baseline error was caught by the number audit**, not by review:
+the memo claimed cell 1.5 m produced a "23× increase" in marsh cells
+above vendor. 23× is 2.34% ÷ 0.10%, but 0.10% is the `w6`–`w50` tail —
+the delivered run is `w3`, tail 0.15%, giving **15×**. Corrected
+everywhere. The conclusion stands; only its magnitude was inflated.
+
+## Gitignore does not apply to already-tracked files
+
+Found 2026-08-11 in the portfolio repo. `.claude/` had been gitignored
+for the whole project, yet `.claude/settings.local.json` was in version
+control — committed in `8013a91` before the ignore rule existed. Once a
+path is tracked, `.gitignore` is irrelevant to it, silently and forever.
+
+What was in there: 40+ one-off allow rules accumulated by clicking
+through permission prompts, including **`Read(//c//**)`** — permission to
+read the entire C: drive — sitting in a repository intended to be shown
+to employers.
+
+The general trap: adding an ignore rule does not retroactively untrack
+anything, and `git status` stays clean, so nothing ever surfaces it. Use
+`git ls-files <path>` to check whether a supposedly-ignored path is
+actually tracked; `git rm --cached` to untrack while keeping the file.
+Worth doing for any path that accumulates machine-generated local state.

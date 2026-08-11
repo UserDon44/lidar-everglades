@@ -1,8 +1,8 @@
 SMRF `window` sweep -- does the L-67A embankment crown survive?
 ==============================================================================
-generated : 2026-08-11T08:51:23
+generated : 2026-08-11T09:13:38
 script    : scripts/measure_window_sweep.py
-git commit: 41149d5
+git commit: 638fc18
 
 PARAMETERS -- the choices that define this measurement
 ------------------------------------------------------------------------------
@@ -27,11 +27,17 @@ vendor crest height above marsh : 2.369 m
 tag                      crest z    above   kept%   marsh z    drift  md5
 ========================================================================================
 w3_s0.05_t0.15             3.976    1.612   72.4%     2.400   +0.036  ab0bebafe0d9e8f59cb6405249b12a39
+                       crest height reduction vs vendor: 0.757 m  (2.369 -> 1.612)
 w6_s0.05_t0.15             3.161    0.797   41.1%     2.398   +0.034  70b1f8b42bec88f0d088a1f6d3fa1acb
+                       crest height reduction vs vendor: 1.572 m  (2.369 -> 0.797)
 w12_s0.05_t0.15            3.044    0.679   30.3%     2.398   +0.034  4a3f0eb07060ec075dd5e15d0f296651
+                       crest height reduction vs vendor: 1.689 m  (2.369 -> 0.679)
 w25_s0.05_t0.15            3.052    0.688   29.6%     2.398   +0.034  576d7559c249faea56247385cdd6b59f
+                       crest height reduction vs vendor: 1.681 m  (2.369 -> 0.688)
 w50_s0.05_t0.15            3.052    0.688   29.6%     2.398   +0.034  576d7559c249faea56247385cdd6b59f
+                       crest height reduction vs vendor: 1.681 m  (2.369 -> 0.688)
 c1.5_w3_s0.05_t0.15        4.353    1.989   99.6%     2.423   +0.059  45d2c79a3e4bc93f4bbe529a40e642c8
+                       crest height reduction vs vendor: 0.380 m  (2.369 -> 1.989)
 ========================================================================================
 
 BYTE-IDENTICAL OUTPUTS (window had NO effect between these):

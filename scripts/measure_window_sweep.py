@@ -138,16 +138,20 @@ def main(tags):
         mz = float(np.nanmedian(a[marsh]))
         drift = mz - marsh_z
 
-        rows.append((tag, above, kept, drift, md5(path)))
+        vendor_crest_above = float(np.nanmedian(vendor[crest])) - marsh_z
+        reduction = vendor_crest_above - above
+        rows.append((tag, above, kept, drift, md5(path), reduction))
         print(f"{tag:<22} {cz:>9.3f} {above:>8.3f} {kept:>6.1f}% "
               f"{mz:>9.3f} {drift:>+8.3f}  {rows[-1][4]}")
+        print(f"{'':<22} crest height reduction vs vendor: "
+              f"{reduction:.3f} m  ({vendor_crest_above:.3f} -> {above:.3f})")
 
     print("=" * 88)
 
     # Byte-identity check: the failure mode that fooled project one twice.
     seen = {}
     dupes = []
-    for tag, _, _, _, h in rows:
+    for tag, _, _, _, h, _r in rows:
         seen.setdefault(h, []).append(tag)
     for h, group in seen.items():
         if len(group) > 1:
