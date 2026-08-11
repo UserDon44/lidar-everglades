@@ -335,6 +335,10 @@ def fig04_window_sweep():
 # fig05 -- agreement with vendor, BY REGION (the pooled number misleads)
 # ======================================================================
 def fig05_qc_regions():
+    """Histogram only. This used to carry a difference MAP in a left panel
+    as well, but fig08 now shows the same data full-size on a hillshade
+    base -- printing both would show one dataset twice at two sizes, and
+    the small version was the weaker of the two."""
     v, ext, _ = load(VENDOR)
     m, _, _ = load(FINAL)
     a05, _, _ = load(DEM / "count_allret_0.5m.tif", False)
@@ -345,39 +349,29 @@ def fig05_qc_regions():
     crest = np.nan_to_num(v, nan=-9999) > (marsh_z + 2.0)
     marsh = ~water & ~crest
 
-    fig, axes = plt.subplots(1, 2, figsize=(14.5, 6.0),
-                              gridspec_kw={"width_ratios": [1.05, 1]})
-
-    lim = 0.5
-    im = axes[0].imshow(d, extent=ext, origin="upper", cmap="RdBu_r",
-                        vmin=-lim, vmax=lim)
-    cb = plt.colorbar(im, ax=axes[0], fraction=0.046, pad=0.03, extend="both")
-    cb.set_label("this surface − vendor (m)")
-    axes[0].set_xlabel("Easting (m, EPSG:6350)")
-    axes[0].set_ylabel("Northing (m, EPSG:6350)")
-    axes[0].set_title("Difference from the vendor ground surface")
-    add_scalebar(axes[0], 200)
-    add_north_arrow(axes[0])
-
+    fig, ax = plt.subplots(figsize=(9.2, 6.2))
     bins = np.linspace(-0.5, 0.5, 121)
-    for mask, lbl, col in ((marsh, "marsh — 94.6%, RMSE 0.081 m", "#4c9f70"),
-                            (water, "water — 4.7%, both interpolated", "#2b5d9e"),
-                            (crest, "crest — 0.6%, RMSE 0.963 m", "#b5423a")):
+    for mask, lbl, col in ((marsh, "marsh - 94.6% of tile, RMSE 0.081 m", "#4c9f70"),
+                            (water, "water - 4.7%, both surfaces interpolated", "#2b5d9e"),
+                            (crest, "crest - 0.6%, RMSE 0.963 m", "#b5423a")):
         vals = d[mask & np.isfinite(d)]
-        axes[1].hist(vals, bins=bins, density=True, histtype="step", lw=2,
-                     color=col, label=lbl)
-    axes[1].axvline(0, color="grey", lw=0.8)
-    axes[1].set_xlabel("this surface − vendor (m)")
-    axes[1].set_ylabel("density")
-    axes[1].set_title("Three populations, not one\n"
-                       "the pooled RMSE (0.111 m) describes none of them")
-    axes[1].legend(fontsize=9)
-    axes[1].grid(alpha=0.3)
-
-    fig.suptitle("Agreement between two independent classifications — "
-                 "NOT an accuracy assessment (no external control exists)",
-                 fontsize=12)
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+        ax.hist(vals, bins=bins, density=True, histtype="step", lw=2,
+                color=col, label=lbl)
+    ax.axvline(0, color="grey", lw=0.8)
+    ax.set_xlabel("delivered minus vendor (m)")
+    ax.set_ylabel("density")
+    ax.set_title("Three populations, not one
+"
+                 "The pooled RMSE (0.111 m) describes none of them. "
+                 "Agreement between two
+classifications, NOT accuracy: no "
+                 "external control exists on this tile.
+"
+                 "For where these differences fall spatially, see Figure 6.",
+                 fontsize=10.5)
+    ax.legend(fontsize=9)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
     save(fig, "fig05_qc_regions.png")
 
 

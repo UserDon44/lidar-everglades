@@ -58,23 +58,34 @@ FIGURE_MAP = {
          "steeply with cell size; cells lacking any return barely move, "
          "because open water returns nothing at any resolution. The gap "
          "between the curves is what larger cells recover."),
+        ("fig09_density_3m.png",
+         "Figure 4. Ground-return density at the delivered 3 m cell. The "
+         "levee and canal banks are bare compacted earth and return "
+         "densely; the sawgrass marsh does not. Unshaded cells hold no "
+         "ground observation at all and are interpolated."),
     ],
     "6. Agreement with the vendor surface": [
         ("fig05_qc_regions.png",
-         "Figure 4. Difference from the vendor ground surface, and the "
+         "Figure 5. Difference from the vendor ground surface, and the "
          "three populations it contains. The marsh distribution (0.081 m "
          "RMSE) is the meaningful one; the pooled statistic describes none "
          "of the three."),
+        ("fig08_difference_map.png",
+         "Figure 6. Where the two classifications disagree. 58% of crest "
+         "cells sit below the vendor surface and none above it — the "
+         "crown truncation of §7.1. Most of the disagreement, "
+         "however, lies off the crest on the steep canal and bank flanks, "
+         "which is the effect described in §7.2."),
     ],
     "7.1 The L-67A crown is truncated by ~0.76 m — accepted and documented": [
         ("fig03_embankment_profile.png",
-         "Figure 5. Embankment width against height above marsh. A levee "
+         "Figure 7. Embankment width against height above marsh. A levee "
          "is a wedge, and morphological opening acts on the width at the "
          "height being cut — so the 6–8.5 m crown governs, not "
          "the 32–46 m base. Vertical lines mark the span of SMRF's "
          "structuring element at cell = 3 m."),
         ("fig04_window_sweep.png",
-         "Figure 6. Crest height retained against `window`, referenced to "
+         "Figure 8. Crest height retained against `window`, referenced to "
          "the same 706 crest cells measured in the vendor surface. No "
          "setting preserves the crown; `window` = 25 m and 50 m produce "
          "byte-identical rasters, confirming convergence. The first "
