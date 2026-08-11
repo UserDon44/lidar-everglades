@@ -237,6 +237,22 @@ The tile is covered by **two** flight lines — `PointSourceId` 34012
 are on different days rather than one continuous lift. Coverage at 10 m
 is **48.8% single-swath, 49.2% double, 2.0% uncovered**.
 
+**The coverage is banded, not uniform**, and a downstream user will meet
+this as an unexplained density step:
+
+| band | northing | coverage | all-return density |
+|---|---|---|---|
+| north edge | > 456,892 | swath 34012 only | 12.5–13.6 pts/m² |
+| **middle** | 456,237–456,892 | **both swaths** | **19.6 pts/m²** |
+| south edge | < 456,237 | swath 34101 only | 10.6–11.6 pts/m² |
+
+The step across northing 456,237 is roughly 2×, runs the full tile
+width, and is acquisition geometry rather than terrain. Void behaviour
+follows it: 5.23% of single-swath cells receive no returns at 1 m against
+3.11% of double-swath cells. Anyone mosaicking this tile against a
+neighbour, or resampling it, should expect that discontinuity and not
+read it as a property of the marsh.
+
 **Measured inter-swath offset: −0.0027 m** (marsh, 21,723 cells observed
 by both), RMSE 0.0287 m. Method: vendor class-2 points split by
 `PointSourceId`, each rasterized on the identical explicit grid with no

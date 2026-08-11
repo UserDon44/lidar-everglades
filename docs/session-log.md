@@ -317,3 +317,97 @@ That rule has now been paid for twice in project one; not repeating it
 here.
 
 Next: figures, then a decision on whether this becomes a PDF deliverable.
+
+---
+
+## 2026-08-11 (full day) — helper, parameters, QC, guardrails, figures
+
+A long session. The through-line is that almost every substantive
+finding came from distrusting something that looked fine.
+
+**The paginated-API helper, and what building it turned up.** Written
+first, as planned. Its first real act was catching a failure nobody had
+hypothesised: TNM intermittently returns an empty `items` list with HTTP
+200 and a correct `total`, seen once at offset 1,000 of 35,144 and not
+reproducible on a repeat. A paginator treating an empty page as
+end-of-data would have returned 1,000 of 35,144 and reported success.
+The loop retries four times before raising.
+
+It also broke the S-151 provenance. The recorded query `NAME LIKE
+'S-151%'` matches zero rows -- the layer names it `S151`, no hyphen. The
+coordinates were right to eight decimals and completely unverifiable.
+The working query now lives in a test rather than in prose.
+
+**Parameters, derived and then partly retracted.** `cell = 3 m` from the
+coverage sweep, `slope = 0.05` from the marsh distribution, `threshold =
+0.15 m` from the ground/vegetation overlap, `scalar` inherited and
+flagged as unvalidated. `window` was derived from the embankment's
+recorded 32-46 m width, predicting the levee would survive below 12 m
+and die above 25 m. The sweep refuted it -- already destroyed at the
+smallest window tested.
+
+Half the prediction held exactly, which is what made it diagnosable:
+w25 and w50 came back byte-identical, putting convergence where
+`ceil(window/cell)` says. Mechanism right, input wrong. The 32-46 m
+figure was thresholded 0.3-1.5 m above marsh -- the levee's *base*.
+Opening cuts at the height in question, and a levee is a wedge: the
+crown is 6-8.5 m, narrower than the smallest structuring element SMRF
+can form. Findable only because whoever wrote "32-46 m" also wrote down
+the threshold used to get it.
+
+Re-derived from the crown, two further runs were predicted and both hit.
+That is exactly when the rule says stop, so the rival explanation was
+tested: a smaller element might simply under-filter everywhere. It split
+-- window exonerated (marsh statistics identical to four decimals across
+8x), cell 1.5 m confirmed to under-filter. Both had looked equally good
+on the crest metric.
+
+**QC, and the numbers that would have been quoted wrong.** Split into
+marsh / crest / water because a pooled figure blends real agreement, an
+accepted truncation, and two interpolations across unmeasured ground.
+Marsh RMSE 0.081 m is the number; the pooled 0.111 m describes nothing.
+Framed throughout as agreement rather than accuracy, since no external
+control exists here.
+
+**Guardrails.** Permission tiers in both repos, plus a command guard that
+scans the whole string -- prefix rules cannot express "flag anywhere",
+so `git push origin main --force` slips past a deny on `git push
+--force`. And a deliverable-number audit, which found four defects in
+itself before finding any in the memo: it traced 172/172 because the
+memo was in its own evidence base; then it ignored the very dumps
+created to fix that; then exact matching could never match a memo that
+rounds; then unsigned tokens compared as positive because the memo uses
+U+2212. Untraced numbers fell 95 -> 2 by fixing the cause -- scripts now
+print what they compute -- and the audit caught a real wrong-baseline
+error: "23x" was 2.34%/0.10%, but 0.10% is the w6-w50 tail and the
+delivered run is w3, tail 0.15%, so 15x.
+
+**The vendor characterization reproduces.** 22 of 25 match. Two slope
+figures differ only by grid phase. The canal elevation does not
+reproduce at all -- no definition yields 2.28 m and no method was ever
+recorded, so it could only be discarded, not corrected.
+
+**Four figure investigations, all prompted by Ryan reading the figures.**
+The SE corner is the S-151 works (confirmed by projecting the SFWMD
+coordinate). The green strips are NOT the levee crown (refuted: 6 of 706
+crest cells are green, and green sits at +0.07 m against the crown's
++2.37 m). The crown speckle is real, not an artifact -- 1 of 166 bright
+cells is interpolated and the crown is the best-sampled ground on the
+tile. And the swath split found two flight lines 19.8 hours apart, which
+produced a 2.7 mm offset where the predecessor's single-day collection
+had 37.8 mm -- a reasonable hypothesis, wrong answer, and a reassuring
+one.
+
+**The image-perception correction.** Both projects' files claimed Claude
+cannot see hillshades. It can. Reading fig01 took one call and found a
+legend overprinting a scale bar and a caption calling a full-width
+density band an "SE corner" -- neither of which Ryan had flagged, and
+neither findable by reading the plotting code. Third inherited claim to
+fail this way after "no adjacent tiles" and "run_dem.py is generic"; the
+pattern is now a rule in the global file.
+
+**Left open.** The edge-effect measurement is still unquantified, for a
+stated reason rather than an assumed one: SMRF anchors its grid to the
+input extent, so buffered and unbuffered runs are not comparable
+cell-by-cell. An extent-matched design would settle it and is not built.
+No PDF assembled. Project two still has no git remote.
