@@ -1,0 +1,58 @@
+Agreement between the SMRF bare-earth surface and the vendor ground classification
+==============================================================================
+generated : 2026-08-11T08:51:22
+script    : scripts/qc_vs_vendor.py
+git commit: 41149d5
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  test surface           : dem_w3_s0.05_t0.15.tif
+  reference              : dem_VENDOR_3m_aligned.tif
+  grid                   : 333x333 @ 3.0 m, origin 1557000.0/456000.0
+  water region           : cells with ZERO returns (binmode count == 0)
+  crest region           : vendor > marsh median + 2.0 m
+  marsh region           : everything not water and not crest
+  marsh datum            : median of all valid vendor cells
+  why regions            : a pooled statistic blends real ground agreement, an accepted truncation, and two interpolations across unmeasured ground
+  NOT an accuracy figure : no external control exists on this tile; this is classification agreement
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+
+test      : dem_w3_s0.05_t0.15.tif
+reference : dem_VENDOR_3m_aligned.tif
+marsh datum : 2.364 m   |   crest mask: vendor > marsh + 2.0 m
+
+grid (333, 333), 110,889 of 110,889 cells valid in both (100.00%)
+
+Regions (disjoint, covering the tile):
+  water (0 returns)             5,236 cells    4.72%
+  crest (levee top)               706 cells    0.64%
+  marsh (everything else)     104,947 cells   94.64%
+
+================================================================================================
+Difference from vendor ground surface  (test - vendor), metres
+================================================================================================
+region                          cells     mean   median     std    RMSE   >0.15m   >0.50m
+------------------------------------------------------------------------------------------------
+ALL (pooled)                  110,889  +0.0323  +0.0380  0.1061  0.1109    2.16%    0.78%
+marsh  <- the real number     104,947  +0.0375  +0.0388  0.0715  0.0807    1.79%    0.44%
+crest  <- truncation lives here      706  -0.7096  -0.9111  0.6513  0.9628   59.92%   57.08%
+water  <- both interpolated     5,236  +0.0274  +0.0275  0.0631  0.0688    1.74%    0.11%
+================================================================================================
+
+READING THIS
+
+  The pooled row is the one to distrust. It blends three populations that
+  answer different questions -- real ground agreement, a known truncation,
+  and two interpolations of nothing.
+
+  marsh RMSE 0.0807 m is the meaningful agreement figure, and it is
+  AGREEMENT between two classifications, not accuracy against control.
+
+  crest mean -0.7096 m is the documented L-67A crown truncation.
+  It is negative by construction: the working surface sits below the
+  vendor's because SMRF's smallest structuring element is wider than the
+  crown. See output/reports/parameter_derivation.md sections 3-3b.
+

@@ -31,9 +31,12 @@ quoted as RMSEz.
 ## 2. Why this site
 
 The site was selected to invert, rather than repeat, the conditions of a
-prior desert project. The contrasts are measured, not asserted:
+prior desert project. Figures in the left-hand column are
+**[cited: lidar-portfolio CLAUDE.md]** — they were derived in that
+project and are quoted here, not re-derived from this tile. Right-hand
+figures are measured from this tile.
 
-| | prior site (Sonoran desert) | **this site** |
+| | prior site (Sonoran desert) [cited: lidar-portfolio CLAUDE.md] | **this site** |
 |---|---|---|
 | horizontal units | International feet | **metres** |
 | geoid | 12A, undeclared in header | **12B, declared** |

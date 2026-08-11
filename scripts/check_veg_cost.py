@@ -43,6 +43,9 @@ A run that retains vegetation shows a positive mean bias and a fatter
 upper tail over the marsh-only mask. A run that merely preserves the
 crown shows marsh statistics indistinguishable from the others.
 """
+import sys as _sys
+from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
 import numpy as np
 import rasterio
 from pathlib import Path
@@ -67,6 +70,23 @@ def load(p):
 
 
 def main():
+    from dump import Dump
+    dump = Dump(
+        "veg_cost",
+        "Does a smaller structuring element preserve the crown by "
+        "under-filtering vegetation everywhere?",
+        {
+            "reference": VENDOR.name,
+            "region": "marsh only -- embankment plus buffer EXCLUDED",
+            "embankment def": "vendor > marsh median + 0.3 m",
+            "buffer": f"{DILATE} cells = {DILATE*3} m dilation",
+            "why exclude": "the feature under test must not contaminate its "
+                            "own control",
+            "hypothesis tested": "opening-scale effects are confined near SE "
+                                  "scale; under-filtering is tile-wide",
+            "discriminator": "marsh mean bias and the >0.15 m tail",
+        })
+    dump.__enter__()
     v = load(VENDOR)
     marsh_z = float(np.nanmedian(v))
 

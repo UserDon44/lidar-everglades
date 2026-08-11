@@ -1,0 +1,50 @@
+L-67A embankment width as a function of height above marsh
+==============================================================================
+generated : 2026-08-11T08:51:21
+script    : scripts/measure_embankment_profile.py
+git commit: 41149d5
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  reference            : dem_VENDOR_3m_aligned.tif
+  cell                 : 3.0 m
+  heights tested       : 0.3, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75 m above marsh
+  marsh datum          : median of all valid vendor cells
+  width metric         : 2 x inscribed radius (Euclidean distance transform max) of the largest connected component
+  why inscribed radius : the embankment runs diagonally; a bounding box measures its LENGTH, not its width
+  why by height        : morphological opening acts on the width AT THE HEIGHT BEING CUT; a levee is a wedge, so its base width does not govern crown survival
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+reference   : dem_VENDOR_3m_aligned.tif
+marsh datum : 2.364 m
+cell        : 3.0 m
+
+ height above   cells  largest  inscribed    width   SE that still fits
+    marsh (m)             comp  radius px      (m)
+------------------------------------------------------------------------------
+         0.30    4980     2634       7.62     45.7   r <= 7 px  (window <= 21 m)
+         0.50    3825     2191       7.21     43.3   r <= 6 px  (window <= 18 m)
+         0.75    3146     1888       6.00     36.0   r <= 5 px  (window <= 15 m)
+         1.00    2585     1639       5.39     32.3   r <= 4 px  (window <= 12 m)
+         1.25    1963     1427       5.00     30.0   r <= 4 px  (window <= 12 m)
+         1.50    1411     1167       4.24     25.5   r <= 3 px  (window <= 9 m)
+         1.75     937      520       3.61     21.6   r <= 3 px  (window <= 9 m)
+         2.00     706      388       3.00     18.0   r <= 2 px  (window <= 6 m)
+         2.25     476      251       2.24     13.4   r <= 1 px  (window <= 3 m)
+         2.50     200       92       1.41      8.5   r <= 0 px  (window <= 0 m)
+         2.75      37       11       1.00      6.0   r <= 0 px  (window <= 0 m)
+------------------------------------------------------------------------------
+
+INTERPRETATION
+
+  Base width (the 32-46 m figure previously recorded) is measured near
+  the bottom of this ladder. The crown -- what a structuring element
+  must fit inside to preserve the top of the levee -- is the width at
+  the HIGH end.
+
+  A window of W metres gives max_radius = ceil(W / 3) px, and the
+  SE spans 2*max_radius+1 px. The embankment top survives only while
+  that span stays under width(h) at the height in question.
+

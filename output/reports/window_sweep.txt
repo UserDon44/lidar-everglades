@@ -1,0 +1,39 @@
+SMRF `window` sweep -- does the L-67A embankment crown survive?
+==============================================================================
+generated : 2026-08-11T08:51:23
+script    : scripts/measure_window_sweep.py
+git commit: 41149d5
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  reference          : dem_VENDOR_3m_aligned.tif
+  crest mask         : vendor > marsh median + 2.0 m
+  why that threshold : selects the crown, not the flanks; flanks are where SMRF's slope term bites and would blend two effects into one number
+  marsh control      : |vendor - marsh median| <= 0.15 m
+  why a control      : if flat terrain also moves, the crest number cannot be read on its own
+  kept% definition   : fraction of crest cells retaining >50% of their vendor height above marsh
+  checksums          : reported because two windows past SMRF convergence give byte-identical output, invisible to stats
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+reference : dem_VENDOR_3m_aligned.tif
+marsh datum (vendor median) : 2.364 m
+crest mask : vendor > marsh + 2.0 m  -> 706 cells (0.64% of tile)
+marsh mask : |vendor - marsh| <= 0.15 m -> 94,808 cells
+vendor crest height above marsh : 2.369 m
+
+========================================================================================
+tag                      crest z    above   kept%   marsh z    drift  md5
+========================================================================================
+w3_s0.05_t0.15             3.976    1.612   72.4%     2.400   +0.036  ab0bebafe0d9e8f59cb6405249b12a39
+w6_s0.05_t0.15             3.161    0.797   41.1%     2.398   +0.034  70b1f8b42bec88f0d088a1f6d3fa1acb
+w12_s0.05_t0.15            3.044    0.679   30.3%     2.398   +0.034  4a3f0eb07060ec075dd5e15d0f296651
+w25_s0.05_t0.15            3.052    0.688   29.6%     2.398   +0.034  576d7559c249faea56247385cdd6b59f
+w50_s0.05_t0.15            3.052    0.688   29.6%     2.398   +0.034  576d7559c249faea56247385cdd6b59f
+c1.5_w3_s0.05_t0.15        4.353    1.989   99.6%     2.423   +0.059  45d2c79a3e4bc93f4bbe529a40e642c8
+========================================================================================
+
+BYTE-IDENTICAL OUTPUTS (window had NO effect between these):
+  w25_s0.05_t0.15 == w50_s0.05_t0.15
+  A window sweep only tests something where outputs differ.

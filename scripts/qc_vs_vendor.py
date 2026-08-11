@@ -51,6 +51,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import sys as _sys
+from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
 import numpy as np
 import rasterio
 
@@ -134,6 +137,26 @@ def main():
 
     ensure_counts()
     test_path = DEM / f"dem_{a.tag}.tif"
+    from dump import Dump
+    dump = Dump(
+        "qc_vs_vendor",
+        "Agreement between the SMRF bare-earth surface and the vendor "
+        "ground classification",
+        {
+            "test surface": f"dem_{a.tag}.tif",
+            "reference": VENDOR.name,
+            "grid": f"{WIDTH}x{HEIGHT} @ {RES} m, origin {ORIGIN_X}/{ORIGIN_Y}",
+            "water region": "cells with ZERO returns (binmode count == 0)",
+            "crest region": f"vendor > marsh median + {CREST_ABOVE} m",
+            "marsh region": "everything not water and not crest",
+            "marsh datum": "median of all valid vendor cells",
+            "why regions": "a pooled statistic blends real ground agreement, "
+                           "an accepted truncation, and two interpolations "
+                           "across unmeasured ground",
+            "NOT an accuracy figure": "no external control exists on this "
+                                      "tile; this is classification agreement",
+        })
+    dump.__enter__()
     v = load(VENDOR)
     m = load(test_path)
     cnt = np.nan_to_num(load(COUNTS), nan=0.0)

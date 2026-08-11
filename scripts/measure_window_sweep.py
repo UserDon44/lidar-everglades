@@ -46,6 +46,9 @@ import hashlib
 import sys
 from pathlib import Path
 
+import sys as _sys
+from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
 import numpy as np
 import rasterio
 
@@ -77,6 +80,25 @@ def md5(path):
 
 
 def main(tags):
+    from dump import Dump
+    dump = Dump(
+        "window_sweep",
+        "SMRF `window` sweep -- does the L-67A embankment crown survive?",
+        {
+            "reference": VENDOR.name,
+            "crest mask": f"vendor > marsh median + {CREST_ABOVE} m",
+            "why that threshold": "selects the crown, not the flanks; flanks "
+                                  "are where SMRF's slope term bites and would "
+                                  "blend two effects into one number",
+            "marsh control": f"|vendor - marsh median| <= {MARSH_BAND} m",
+            "why a control": "if flat terrain also moves, the crest number "
+                             "cannot be read on its own",
+            "kept% definition": "fraction of crest cells retaining >50% of "
+                                "their vendor height above marsh",
+            "checksums": "reported because two windows past SMRF convergence "
+                         "give byte-identical output, invisible to stats",
+        })
+    dump.__enter__()
     vendor = load(VENDOR)
     marsh_z = float(np.nanmedian(vendor))
     crest = vendor > (marsh_z + CREST_ABOVE)

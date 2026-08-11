@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git ls-files*)",
+      "Bash(git show*)",
+      "Bash(git remote -v)",
+      "Bash(ls*)",
+      "Bash(dir*)",
+      "Bash(du*)",
+      "Bash(stat*)",
+      "Bash(wc*)",
+      "Bash(md5sum*)",
+      "Bash(sha256sum*)",
+      "Bash(certutil -hashfile*)",
+      "Bash(gdalinfo*)",
+      "Bash(pdal info*)",
+      "Bash(conda env list*)",
+      "Bash(conda list*)",
+      "Bash(*/Library/bin/gdalinfo.exe*)",
+      "Bash(*/Library/bin/pdal.exe info*)",
+      "PowerShell(Get-ChildItem*)",
+      "PowerShell(Get-FileHash*)",
+      "PowerShell(conda env list)"
+    ],
+    "ask": [
+      "Write(./output/reports/**)",
+      "Edit(./output/reports/**)",
+      "Write(./data/raw/**)",
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(pip install*)",
+      "Bash(pip3 install*)",
+      "Bash(conda install*)",
+      "Bash(python -m pip install*)"
+    ],
+    "deny": [
+      "Edit(./data/raw/**)",
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(rm -r -f*)",
+      "Bash(rm -f -r*)",
+      "Bash(rm --recursive*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push --delete*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -fd*)",
+      "Edit(//c/Windows/**)",
+      "Write(//c/Windows/**)",
+      "Edit(//c/Program Files/**)",
+      "Write(//c/Program Files/**)",
+      "Edit(~/.ssh/**)",
+      "Write(~/.ssh/**)",
+      "Edit(~/.aws/**)",
+      "Write(~/.aws/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_destructive.py\"",
+            "timeout": 15,
+            "statusMessage": "checking command safety"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/check_deliverable_numbers.py\"",
+            "timeout": 60,
+            "statusMessage": "tracing deliverable numbers"
+          }
+        ]
+      }
+    ]
+  }
+}

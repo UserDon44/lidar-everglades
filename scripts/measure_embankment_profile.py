@@ -42,6 +42,9 @@ The SMRF-relevant comparison is then: a diamond SE of radius r pixels
 spans 2r+1 pixels, so it fits at height h only while
 width(h) >= (2r+1) * cell.
 """
+import sys as _sys
+from pathlib import Path as _P
+_sys.path.insert(0, str(_P(__file__).resolve().parent))
 import numpy as np
 import rasterio
 from pathlib import Path
@@ -55,6 +58,24 @@ HEIGHTS = [0.3, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75]
 
 
 def main():
+    from dump import Dump
+    dump = Dump(
+        "embankment_profile",
+        "L-67A embankment width as a function of height above marsh",
+        {
+            "reference": VENDOR.name,
+            "cell": f"{CELL} m",
+            "heights tested": ", ".join(f"{h}" for h in HEIGHTS) + " m above marsh",
+            "marsh datum": "median of all valid vendor cells",
+            "width metric": "2 x inscribed radius (Euclidean distance "
+                            "transform max) of the largest connected component",
+            "why inscribed radius": "the embankment runs diagonally; a bounding "
+                                    "box measures its LENGTH, not its width",
+            "why by height": "morphological opening acts on the width AT THE "
+                             "HEIGHT BEING CUT; a levee is a wedge, so its base "
+                             "width does not govern crown survival",
+        })
+    dump.__enter__()
     ds = rasterio.open(VENDOR)
     a = ds.read(1).astype("float64")
     a[a == ds.nodata] = np.nan
