@@ -174,6 +174,21 @@ which reproduces under no tested definition and whose method was never
 recorded — see qc_memo §4.* Any deliverable must state that rather
 than presenting an interpolated water surface as terrain.
 
+## STATUS: complete (2026-08-11)
+
+Deliverable standard reached. `output/reports/qc_report.pdf` (17 pp),
+`README.md`, `qc_memo.md`, `parameter_derivation.md`, six figures, ten
+measurement dumps, permission policy and two hooks. Public GitHub remote.
+
+Nothing is half-finished. The two items not done are both deliberate and
+recorded with reasons: the edge effect stays unquantified (see the scope
+decision at the end of this file), and `scalar` remains inherited rather
+than validated, labelled as such everywhere it appears.
+
+If this project is picked up again, the honest next steps are: validate
+`scalar` against this tile, or take the extent-matched edge measurement.
+Neither is required for the deliverable to stand.
+
 ## Next steps, in order
 
 **1. ~~Paginated-API helper~~ — DONE (2026-08-11).** See "RESOLVED:

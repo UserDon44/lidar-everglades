@@ -463,3 +463,47 @@ CLAUDE.md as a scope decision so a later session does not "fix" it.
 
 Deliverable state: PDF, memo, derivation, README, six figures, ten
 measurement dumps, permission policy and two hooks. Private remote.
+
+---
+
+## 2026-08-11 (close) — project two complete
+
+Deliverable standard reached and the repository made public.
+
+What shipped: a 17-page QC report, a README written for a thirty-second
+read, the memo and the full parameter derivation, six figures, ten
+measurement dumps each carrying a mandatory parameters header, a
+permission policy, and two hooks -- a destructive-command guard and the
+deliverable-number audit.
+
+Two things are deliberately not done, both recorded with reasoning rather
+than left as loose ends. The tile-edge effect stays unquantified: an
+extent-matched design would measure it, but what the memo says instead is
+a measured *mechanism* -- shifting the input extent 1.5 m with no buffer
+at all changes 93.1% of cells 200 m away -- and that is a stronger
+statement than a magnitude. The predecessor project's failure was
+asserting an untested limitation, not lacking a number for a
+characterised one. And `scalar` remains inherited from project one rather
+than validated here, labelled as such in every document that mentions it.
+
+Worth stating plainly what this project actually demonstrated, since the
+retractions outnumber the clean results and that could read as chaos
+rather than method:
+
+The deliverable is a defensible bare-earth surface with its agreement to
+the vendor quantified by region, its limitations measured rather than
+hedged, and every published number traceable to a dump that records the
+choices behind it. The route there involved withdrawing three findings --
+a `window` derivation built on the wrong width, a 23x that was 15x, and a
+canal elevation that reproduced under no definition at all. Each was
+caught by a different mechanism: a checksum, an automated audit, and a
+re-derivation script written specifically to test whether the foundation
+still held.
+
+That last one is the pattern worth keeping. Every retraction in both
+projects has the same shape -- a correct measurement compared against the
+wrong reference -- and none was caught by review, because review checks
+whether the computation was done correctly and it always had been. What
+caught them was making the comparison explicit: naming the denominator,
+checksumming the outputs, re-deriving the foundation, or simply looking
+at the figure.
