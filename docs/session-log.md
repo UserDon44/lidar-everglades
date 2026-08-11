@@ -605,3 +605,51 @@ a full analysis had been written and appeared to do nothing at all. Now
 one, so project three inherits the module rather than the habit.
 
 Project two is finished.
+
+---
+
+## 2026-08-11 (post-closeout) — going public, and a boundary I got wrong
+
+The project was already done; this covers what happened after.
+
+**Made public.** Ryan flipped the visibility himself and asked me to
+confirm it rather than take his word. I checked with an anonymous API
+call, which is the only check that proves anything here — a private repo
+404s to an unauthenticated request, so the call succeeding *is* the
+evidence. `private: false`. Also confirmed a stranger sees the README,
+the 23-page PDF and all eleven measurement dumps, and that origin and
+local sit at the same commit.
+
+**A personal render request, and the boundary that came out of it.** Ryan
+asked for an animated flyaround for personal use, then stated a rule:
+personal creation should not cross paths with project work. I built a
+standalone toolkit at `C:/Users/ryans/terrain-renders/` — no project
+imports, no project paths, reads any DEM by argument.
+
+Then I overreached. I proposed removing `render_personal.py` and its
+batch driver from both repos, on the logic that personal tooling should
+not sit in a portfolio. Ryan said no: similar rendering tools are used
+for accurate project work.
+
+He was right, and the distinction is worth keeping. **It is a rendering
+engine, not personal content.** The light rigs, void trimming and
+camera-relative lighting are generally useful; what made the *output*
+non-deliverable was exaggeration and disclosure, not the code. I had
+attached the boundary to the wrong object — to a file rather than to what
+the file was asked to produce. That is a smaller cousin of the failure
+this project kept hitting all along: a correct idea mapped onto the wrong
+reference.
+
+**One technical finding worth carrying.** The first flyaround produced
+180 byte-identical frames, because `enable_ssao()` was being called
+inside the frame loop, which rebuilds the render passes and silently
+resets the camera. Pillow collapsed them into a one-frame GIF. The file
+was valid, opened fine, and was suspiciously small — but "small" is
+exactly what a correctly-encoded dark GIF looks like, so size was not
+diagnostic. Frame hashing was. Configure SSAO once, outside the loop.
+
+**Closing state.** Both repos public, clean, synced, and mirrored to
+OneDrive. Personal renders and the flyaround live on Google Drive and in
+the standalone toolkit, outside both projects.
+
+Project three has not started. Nothing here is pending.

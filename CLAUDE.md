@@ -744,3 +744,70 @@ measurement compared against the wrong reference.
 magnitude (a measured mechanism beats an asserted number), `scalar`
 validation (inherited, labelled as such), and the NGVD29 gauge tie
 (~1.5 ft offset deserving its own treatment).
+
+---
+
+## POST-COMPLETION RECORD (2026-08-11, after the closeout above)
+
+Nothing in the deliverable changed. These are state and boundary facts a
+later session needs.
+
+### Repository is public
+
+`github.com/UserDon44/lidar-everglades`, flipped from private after the
+PDF was assembled. Verified by an **anonymous** API call rather than from
+a logged-in page: a private repo 404s to an unauthenticated request, so
+the call succeeding is itself the proof. `private: false`,
+`visibility: public`, default branch `main`. Project one is public too.
+Confirmed the README, the PDF and all eleven measurement dumps are
+visible to a stranger, and that origin and local sit at the same commit.
+
+The repo description field is still unset. It is what shows under the
+name in search results and on the profile — left alone because it is a
+presentation choice rather than a technical one.
+
+### Personal renders: the boundary, and what it does NOT mean
+
+A standalone toolkit now lives at `C:/Users/ryans/terrain-renders/` —
+`render.py`, `animate.py`, `env_bootstrap.py`, `out/`. It sits outside
+both repos, imports nothing from them, writes nothing into them, and
+takes any GeoTIFF via `--dem`, so it can read project data without the
+projects depending on it. Personal renders go there from now on.
+
+**`scripts/render_personal.py` and `render_personal_batch.py` stay in
+both repos deliberately.** I proposed removing them, reasoning that
+personal work should not sit in a portfolio repo. That was wrong, and the
+correction is the part worth keeping: **it is a rendering engine, not
+personal content.** The looks, light rigs, void trimming and
+camera-relative lighting are generally useful, including for accurate
+project work. What made the *output* non-deliverable was the exaggeration
+and disclosure choices, not the tool that produced them. Do not remove
+these later on tidiness grounds.
+
+`output/renders_personal/README.md` remains the marker on the output
+side, and `render_3d.py` remains the documentary renderer with mandatory
+VE disclosure. **The separation is about disclosure, not about which
+directory a script sits in.**
+
+### PyVista: never call enable_ssao() inside a frame loop
+
+Found while building an animated flyaround. `enable_ssao()` rebuilds the
+render-pass stack and **silently resets the camera**, so all 180 frames of
+an orbit came out byte-identical. Pillow then collapsed them into a
+single-frame GIF, which made the symptom look like an encoder bug rather
+than a camera one. The file was valid, opened fine, and was small — but
+small is exactly what a correctly-encoded dark-background GIF looks like,
+so size was not diagnostic either.
+
+Configure SSAO once before the loop; per frame set lights and camera and
+call `pl.render()`. **Verify animations by frame hash, not by file size
+or by the file opening.** Any future animated figure built on
+`render_3d.py` would hit the same thing.
+
+### Backups
+
+Both repos mirror to OneDrive (`lidar-portfolio-backup` ~1,775 MB,
+`lidar-everglades-backup` ~456 MB) via `xcopy /E /I /H /Y`, which is
+additive — it never deletes, so a few superseded files persist there:
+two pre-rename `master` refs in each, and one replaced figure in project
+two. Git is the authoritative record; the drift is known and accepted.
