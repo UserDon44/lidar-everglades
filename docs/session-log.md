@@ -121,5 +121,19 @@ informative if the tested values straddle that transition, and the
 outputs must be checksummed rather than eyeballed.
 
 **Session ended here by request.** No SMRF run has been made and no
-parameter values are set. Next session's first task is deriving
-window/slope/threshold from the measurements above.
+parameter values are set.
+
+**One addition at close**, and it displaces the parameter work as next
+session's first task: write a paginated-API helper that cannot return a
+truncated result set silently — page to completion or raise with the
+returned and total counts. This comes directly from the TNM near-miss
+above. The reason it earns priority over the DEM work is the shape of
+the failure rather than its size: the query succeeded, the JSON parsed,
+the list was well-formed, and the wrong answer arrived as a *negative* —
+"this project does not cover S-151" — which nothing downstream would
+ever contradict. Site selection was one tighter bbox away from being
+founded on it, and that bbox was run for an unrelated reason. Every
+remaining data source here is paginated too.
+
+So: helper first, then derive window/slope/threshold from the
+measurements above.

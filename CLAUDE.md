@@ -156,7 +156,29 @@ classification problem SMRF can attack, water is irreducible absence.
 ~2.28 m where there is open water. Any deliverable must state that rather
 than presenting an interpolated water surface as terrain.
 
-## NOT YET DERIVED — next session's first task
+## Next steps, in order
+
+**1. Paginated-API helper — do this BEFORE any further API query.**
+Write a helper that will not return a truncated result set silently:
+compare the returned count against the reported total on every response
+and either page through to completion or raise with both numbers in the
+message. No caller should ever receive a partial list that looks
+complete. Applies to TNM, the SFWMD AHED service, NGS, and anything
+added later.
+
+*Why it is first, not filed as a nicety*: tonight a wide-bbox TNM query
+returned **300 of 694** items and, on that basis, reported no 3DEP
+coverage for S-151 — for the very project that does cover it. It was
+caught only because a tighter bbox was run for an unrelated reason. The
+failure mode is that a truncated page is indistinguishable from a
+complete one: the query succeeds, the JSON parses, the list is
+well-formed, and the wrong answer is a *negative*, which nothing
+downstream contradicts. Site selection had been one narrow escape from
+being founded on it.
+
+**2. Derive `window` / `slope` / `threshold`** — see the section below.
+
+## NOT YET DERIVED — the parameter work (step 2 above)
 
 **`window`, `slope`, `threshold` and `scalar` are not set.** Do not carry
 San Xavier's values (window 120 ft, slope 0.15, threshold 1.6 ft) or scale
