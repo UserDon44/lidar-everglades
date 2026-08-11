@@ -19,3 +19,8 @@ __pycache__/
 !.claude/settings.json
 !.claude/hooks/
 .claude/hooks/last_number_audit.txt
+
+# The non-deliverable marker is tracked; the renders themselves are not.
+!output/renders_personal/
+output/renders_personal/*
+!output/renders_personal/README.md
