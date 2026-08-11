@@ -177,8 +177,75 @@ than presenting an interpolated water surface as terrain.
 paginated-API helper" below. `scripts/fetch_api.py` + a live verification
 suite; use it for every API query from here.
 
-**2. Derive `window` / `slope` / `threshold`** — the current task. See
-the section below.
+**2. ~~Derive `window` / `slope` / `threshold`~~ — DONE (2026-08-11).**
+Full derivation in `output/reports/parameter_derivation.md`; summary and
+the retracted first attempt below.
+
+**3. Next**: QC the working DEM against the vendor surface, and decide
+whether the levee-crown truncation is acceptable for the deliverable or
+warrants a region-specific second pass.
+
+## RESOLVED: SMRF parameters (2026-08-11)
+
+Working set — `dem_w3_s0.05_t0.15.tif`, md5 `ab0bebaf…`:
+`cell` 3.0 m · `window` 3.0 m · `slope` 0.05 · `threshold` 0.15 m ·
+`scalar` 1.25 (inherited) · ELM 10.0 m / 1.0 m · `res` 3.0 m.
+
+Five of eight measured from this tile, one explicitly inherited without
+validation, two reasoned defaults on a low-impact stage. Built by
+`scripts/run_smrf.py` (local to this project — project one is frozen and
+its outputs would land in its tree).
+
+**A prediction was made and refuted; this is the important part.**
+`window` was first derived from the embankment's recorded 32–46 m width,
+predicting the levee would survive below 12 m and be destroyed above
+25 m. The sweep showed it **already destroyed at the smallest window
+tested** (6 m → 0.797 m crest against the vendor's 2.369 m), and moving
+by only 0.12 m across an 8× range.
+
+The mechanism was read correctly — 25 m and 50 m came back
+**byte-identical**, putting convergence between 12 and 25 m exactly where
+`ceil(window/cell)` says. It was applied to the wrong number. The
+32–46 m figure was thresholded 0.3–1.5 m above marsh, i.e. the levee's
+**base**; opening acts on width *at the height being cut*, and a levee is
+a wedge. Measured properly the crown is **6.0–8.5 m** at 2.5–2.75 m
+height — 2–3 px at `cell = 3 m`, narrower than SMRF's smallest possible
+structuring element (9 m). **No window at this cell size can preserve
+it.** Same class of error as project one's retracted seam finding, and
+findable only because the original width measurement had its threshold
+recorded alongside it.
+
+**The competing explanation was tested, and split.** Re-derived from the
+crown, `w3` (cell 3) and `w3` (cell 1.5) were predicted and both hit —
+1.612 m / 72.4% and 1.989 m / 99.6%. Since a confirmed prediction is not
+verification, the rival hypothesis (a smaller SE simply under-filters
+everywhere) was measured over marsh cells with the embankment plus a
+30 m buffer excluded:
+
+| | marsh bias | marsh RMSE | marsh >0.15 m |
+|---|---|---|---|
+| window 3→50 m | +0.0414–0.0416 m | 0.048–0.050 m | 0.10–0.15% |
+| **cell 1.5 m** | **+0.0637 m** | **0.0760 m** | **2.34%** |
+
+**Rejected for `window`** — identical to four decimals across an 8×
+range, so the effect is genuinely confined to SE scale. **Confirmed for
+`cell`** — the finer cell buys its crown back with a 23× increase in
+marsh cells sitting above the vendor surface. Its crest number alone
+would have recommended it.
+
+**Four limitations, none tunable away**: levee crown truncated ~0.76 m
+(resolution floor); bank flanks classified non-ground (`slope` set from
+the marsh, surface is bimodal); ground/vegetation overlap irreducible
+(40.6% of unclassified within 0.15 m of ground); open water is absence,
+not error (6.07%, interpolated across — must not be shown as measured
+terrain).
+
+**Grid alignment fixed here too.** `dem_VENDOR_3m.tif` was sized from its
+own point extent (335×334) and is not cell-aligned to the SMRF runs
+(333×333 on an explicit origin). `scripts/build_vendor_aligned.py`
+rebuilds it on the identical grid — rebuilt rather than warped, to avoid
+resampling the surface the crest mask is derived from. Use
+`dem_VENDOR_3m_aligned.tif` for any comparison.
 
 ## RESOLVED: paginated-API helper (2026-08-11)
 

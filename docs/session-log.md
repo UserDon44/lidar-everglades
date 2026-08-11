@@ -199,3 +199,72 @@ returning page one.
 
 Next: derive window/slope/threshold from the feature scales already
 measured.
+
+---
+
+## 2026-08-11 (later) — SMRF parameters, and a prediction that failed usefully
+
+Derived the parameter set. Four of the eight values fell out of
+measurements already in hand; the interesting half of the session was
+`window`, which I got wrong in a way worth recording.
+
+**The wrong derivation.** I read the mechanism from PDAL source rather
+than the CLI help -- diamond structuring element, `max_radius =
+ceil(window/cell)`, feature eroded once the SE no longer fits inside it
+-- and combined it with the recorded embankment width of 32-46 m. That
+gave a clean prediction: the levee survives below ~12 m and is destroyed
+above ~25 m, with the two scales (vegetation ~6 m, embankment ~32-46 m)
+separated by enough room for a window to sit between them. I wrote the
+prediction down before running, which is the one thing that went right.
+
+The sweep refuted it. The levee was already gone at the smallest window
+tested, and an 8x window range moved the crest by 0.12 m against a
+2.37 m feature.
+
+**Why it was diagnosable.** Half the prediction held exactly: windows 25
+and 50 m came back byte-identical, putting convergence between 12 and 25
+where the arithmetic said. So the mechanism was right and the input was
+wrong -- which is a much easier thing to chase than a wholesale failure.
+The 32-46 m width had been measured by thresholding 0.3-1.5 m above
+marsh. That is the levee's *base*. Opening acts on the width at the
+height being cut, and a levee is a wedge. Measured as a ladder of
+heights, the crown is 6.0-8.5 m -- two or three pixels at a 3 m cell,
+narrower than the smallest structuring element SMRF can form. No window
+was ever going to preserve it.
+
+This is project one's retracted-seam error in a new costume: correct
+mechanism, real measurement, wrong reference quantity. It was findable
+only because whoever recorded "32-46 m" also recorded the threshold used
+to get it. A bare number would have looked perfectly sound.
+
+**The part I nearly got wrong twice.** Re-derived from the crown, I
+predicted two more runs and both hit within their stated ranges. That is
+exactly the moment this project's most expensive rule applies -- a
+prediction coming true is not verification -- so instead of writing it
+up I tested the obvious rival explanation: that a smaller structuring
+element just filters less everywhere, and the crown survives as a side
+effect of retaining vegetation.
+
+The test split the two results cleanly. Across an 8x window range the
+marsh statistics are identical to four decimal places, so `window` is
+exonerated and its effect really is confined to SE scale. But the finer
+1.5 m cell showed a 23x increase in marsh cells sitting more than 0.15 m
+above the vendor surface. Its 99.6% crown preservation is substantially
+bought by retaining non-ground returns.
+
+Both runs "looked good" on the crest metric. One was a genuine win and
+one was a trade, and the crest number could not tell them apart. Had I
+stopped at "both predictions hit," I would have recommended the finer
+cell on the strength of the better-looking number.
+
+**Also fixed**: the vendor DEM was sized from its own point extent
+(335x334) and is not cell-aligned to the SMRF runs (333x333 on an
+explicit origin) -- project one's grid-alignment bug arriving here on
+schedule. Rebuilt on the identical grid rather than warped, so the
+surface the crest mask derives from is not resampled.
+
+Four limitations are documented rather than tuned away, the first being
+that the levee crown is truncated ~0.76 m by a resolution floor. That is
+a real property of the site: the cell size needed for ground coverage in
+the marsh (3-5 m) is too coarse to resolve a 6-8 m engineered crown, and
+those two requirements point in opposite directions.
