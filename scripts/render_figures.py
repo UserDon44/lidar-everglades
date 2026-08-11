@@ -413,6 +413,100 @@ def fig06_final_surface():
     save(fig, "fig06_final_surface.png")
 
 
+# ======================================================================
+# fig07 -- plain grayscale hillshade of the delivered surface.
+# The base map the other overlays are drawn on. Project one carries one
+# of these per surface; the Everglades set had none, which left it
+# heavier on analytical plots than on maps.
+# ======================================================================
+def fig07_hillshade():
+    h, ext, _ = load(DEM / "hs_w3_s0.05_t0.15.tif", False)
+    fig, ax = plt.subplots(figsize=(9.0, 8.6))
+    ax.imshow(h, extent=ext, origin="upper", cmap="gray", vmin=0, vmax=255)
+    ax.set_xlabel("Easting (m, EPSG:6350)")
+    ax.set_ylabel("Northing (m, EPSG:6350)")
+    ax.set_title("Bare-earth hillshade, delivered surface\n"
+                 "cell 3.0 m | window 3.0 m | slope 0.05 | threshold 0.15 m\n"
+                 "Illumination 315 deg az, 40 deg alt, 20x z-factor "
+                 "(relief is 2.81 m across 1 km and is flat at 1x)",
+                 fontsize=10.5)
+    add_scalebar(ax, 200)
+    add_north_arrow(ax)
+    mark_s151(ax, color="black")
+    fig.tight_layout()
+    save(fig, "fig07_hillshade.png")
+
+
+# ======================================================================
+# fig08 -- WHERE the two classifications disagree, not merely by how
+# much. Sign convention is DELIVERED minus VENDOR, matching section 6,
+# the qc_vs_vendor dump and fig05. Inverting it for one figure would put
+# a map beside a table it appears to contradict.
+# ======================================================================
+def fig08_difference_map():
+    v, ext, _ = load(VENDOR)
+    m, _, _ = load(FINAL)
+    h, _, _ = load(DEM / "hs_w3_s0.05_t0.15.tif", False)
+    d = m - v
+
+    fig, ax = plt.subplots(figsize=(9.4, 8.6))
+    ax.imshow(h, extent=ext, origin="upper", cmap="gray", vmin=0, vmax=255)
+    lim = 0.5
+    im = ax.imshow(np.where(np.abs(d) > 0.02, d, np.nan), extent=ext,
+                   origin="upper", cmap="RdBu_r", vmin=-lim, vmax=lim,
+                   alpha=0.80)
+    cb = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.03, extend="both")
+    cb.set_label("delivered minus vendor (m)")
+    ax.set_xlabel("Easting (m, EPSG:6350)")
+    ax.set_ylabel("Northing (m, EPSG:6350)")
+    # Caption checked against the data before being written. An earlier
+    # draft said the levee "reads as a continuous blue line", which the
+    # image does not show: 58.1% of crest cells are blue and 0.0% are red,
+    # but only 40.5% of blue cells sit ON the crest -- most are on the
+    # steep canal and bank flanks (section 7.2). Both halves matter and
+    # the first draft got both wrong.
+    ax.set_title("Where the two classifications disagree\n"
+                 "Blue = this surface below the vendor's. 58% of crest "
+                 "cells are blue and none are red\n(the crown truncation); "
+                 "most blue lies OFF the crest, on steep canal and bank "
+                 "flanks.\nCells within 0.02 m are unshaded.", fontsize=10)
+    add_scalebar(ax, 200)
+    add_north_arrow(ax)
+    fig.tight_layout()
+    save(fig, "fig08_difference_map.png")
+
+
+# ======================================================================
+# fig09 -- ground-return density at the DELIVERED cell size. fig01 shows
+# density too, but as one of three panels sharing a frame with
+# all-returns; this asks the narrower question of how many ground
+# observations actually underlie each 3 m cell that was shipped.
+# ======================================================================
+def fig09_density_3m():
+    g05, _, _ = load(DEM / "count_ground_0.5m.tif", False)
+    g3 = agg(np.nan_to_num(g05), 6) / 9.0          # counts -> pts per m2
+    h, ext, _ = load(DEM / "hs_w3_s0.05_t0.15.tif", False)
+
+    fig, ax = plt.subplots(figsize=(9.4, 8.6))
+    ax.imshow(h, extent=ext, origin="upper", cmap="gray", vmin=0, vmax=255)
+    im = ax.imshow(np.where(g3 > 0, g3, np.nan), extent=ext, origin="upper",
+                   cmap="viridis", vmin=0, vmax=4, alpha=0.78)
+    cb = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.03, extend="max")
+    cb.set_label("ground returns per m$^2$ (3 m cell, binmode count)")
+
+    empty = 100.0 * float(np.mean(g3 == 0))
+    ax.set_xlabel("Easting (m, EPSG:6350)")
+    ax.set_ylabel("Northing (m, EPSG:6350)")
+    ax.set_title("Ground-return density at the delivered 3 m cell\n"
+                 f"Mean 1.26 pts/m$^2$; {empty:.2f}% of cells hold no ground "
+                 "return at all\n(unshaded = no ground observation; the "
+                 "surface there is interpolated)", fontsize=10.5)
+    add_scalebar(ax, 200)
+    add_north_arrow(ax)
+    fig.tight_layout()
+    save(fig, "fig09_density_3m.png")
+
+
 if __name__ == "__main__":
     print("rendering figures to output/figures/ ...")
     fig01_coverage()
@@ -421,4 +515,7 @@ if __name__ == "__main__":
     fig04_window_sweep()
     fig05_qc_regions()
     fig06_final_surface()
+    fig07_hillshade()
+    fig08_difference_map()
+    fig09_density_3m()
     print("done")
