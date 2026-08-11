@@ -140,11 +140,15 @@ def build(X, Y, z, ve):
     zd = zmin + (z - zmin) * ve
     nan = np.isnan(zd)
     grid = pv.StructuredGrid(X, Y, np.where(nan, zmin, zd))
-    grid.dimensions = (X.shape[1], X.shape[0], 1)
-    grid["elev"] = np.where(nan, zmin, z).ravel(order="C")
+    # See render_3d.py for the full account. PyVista already sets
+    # dimensions to (nrows, ncols, 1) with rows varying fastest; the old
+    # override to (ncols, nrows, 1) shredded any NON-SQUARE surface and was
+    # invisible here only because every tile in this project is square.
+    # Point and cell arrays must ravel in F order to match that layout.
+    grid["elev"] = np.where(nan, zmin, z).ravel(order="F")
     if nan.any():
         bad = (nan[:-1, :-1] | nan[1:, :-1] | nan[:-1, 1:] | nan[1:, 1:])
-        grid.hide_cells(bad.ravel(order="C"), inplace=True)
+        grid.hide_cells(bad.ravel(order="F"), inplace=True)
     return grid
 
 

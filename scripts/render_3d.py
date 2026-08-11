@@ -125,18 +125,30 @@ def build_mesh(X, Y, z, ve):
     filled = np.where(nan_mask, zmin, z_disp)   # geometry placeholder only
 
     grid = pv.StructuredGrid(X, Y, filled)
-    grid.dimensions = (X.shape[1], X.shape[0], 1)
-
+    # DO NOT override grid.dimensions. PyVista sets it from the array shape
+    # as (nrows, ncols, 1) and lays points out with ROWS varying fastest --
+    # Fortran order. Forcing (ncols, nrows, 1) reinterprets that same point
+    # list under swapped axes and shreds the surface into horizontal
+    # streaks. It is a no-op on a SQUARE grid, which is the only reason it
+    # survived this long: every tile in this project is square. Verified
+    # empirically -- for X of shape (3, 5), PyVista reports dimensions
+    # (3, 5, 1) and emits points as (x0,y0), (x0,y1), (x0,y2), (x1,y0)...
+    #
+    # Everything indexed against those points must therefore ravel in F
+    # order: the texture coordinates below and the hidden-cell mask. The
+    # previous tile/repeat pair built C-order texture coordinates, which
+    # skews the drape on any non-square grid the same way.
     nrows, ncols = z.shape
-    u = np.tile(np.linspace(0.0, 1.0, ncols), nrows)
-    v = np.repeat(np.linspace(1.0, 0.0, nrows), ncols)
-    grid.active_texture_coordinates = np.column_stack([u, v])
+    U, V = np.meshgrid(np.linspace(0.0, 1.0, ncols),
+                       np.linspace(1.0, 0.0, nrows))
+    grid.active_texture_coordinates = np.column_stack(
+        [U.ravel(order="F"), V.ravel(order="F")])
 
     if nan_mask.any():
         # a cell is invalid if ANY of its four corner points is void
         bad = (nan_mask[:-1, :-1] | nan_mask[1:, :-1] |
                nan_mask[:-1, 1:] | nan_mask[1:, 1:])
-        grid.hide_cells(bad.ravel(order="C"), inplace=True)
+        grid.hide_cells(bad.ravel(order="F"), inplace=True)
     return grid
 
 
