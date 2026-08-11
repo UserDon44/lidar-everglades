@@ -1,0 +1,42 @@
+{
+  "pipeline": [
+    {
+      "type": "readers.las",
+      "filename": "C:/Users/ryans/lidar-everglades/data/raw/USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1557n0456.laz"
+    },
+    {
+      "type": "filters.assign",
+      "assignment": "Classification[:]=0"
+    },
+    {
+      "type": "filters.elm",
+      "cell": 10.0,
+      "threshold": 1.0
+    },
+    {
+      "type": "filters.smrf",
+      "cell": 3.0,
+      "window": 3.0,
+      "slope": 0.05,
+      "threshold": 0.15,
+      "scalar": 1.25,
+      "ignore": "Classification[7:7]"
+    },
+    {
+      "type": "filters.range",
+      "limits": "Classification[2:2]"
+    },
+    {
+      "type": "writers.gdal",
+      "filename": "C:/Users/ryans/lidar-everglades/output/dem/dem_phaseA_plain.tif",
+      "resolution": 3.0,
+      "output_type": "idw",
+      "window_size": 6,
+      "origin_x": 1557000.0,
+      "origin_y": 456000.0,
+      "width": 333,
+      "height": 333,
+      "nodata": -9999
+    }
+  ]
+}
