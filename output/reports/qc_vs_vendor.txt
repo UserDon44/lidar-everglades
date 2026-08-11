@@ -1,8 +1,8 @@
 Agreement between the SMRF bare-earth surface and the vendor ground classification
 ==============================================================================
-generated : 2026-08-11T08:51:22
+generated : 2026-08-11T10:42:29
 script    : scripts/qc_vs_vendor.py
-git commit: 41149d5
+git commit: dc52fa1
 
 PARAMETERS -- the choices that define this measurement
 ------------------------------------------------------------------------------
@@ -41,6 +41,7 @@ marsh  <- the real number     104,947  +0.0375  +0.0388  0.0715  0.0807    1.79%
 crest  <- truncation lives here      706  -0.7096  -0.9111  0.6513  0.9628   59.92%   57.08%
 water  <- both interpolated     5,236  +0.0274  +0.0275  0.0631  0.0688    1.74%    0.11%
 ================================================================================================
+crest truncation magnitude: median 0.9111 m, mean 0.7096 m below the vendor surface
 
 READING THIS
 

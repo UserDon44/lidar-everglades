@@ -577,3 +577,36 @@ So the rule becomes: **look at every figure produced, before sending
 it** — it is cheap and catches real defects. But treat anything inferred
 from looking exactly as one would treat a reviewer's impression: worth
 acting on, never sufficient on its own. The measurement still decides.
+
+
+## SCOPE DECISION: the edge effect stays unquantified (2026-08-11)
+
+Deliberate, not an oversight. Recording the reasoning so a later session
+does not "fix" it.
+
+The tile-edge effect could be measured with an extent-matched design:
+inject dummy points at the extended bounding-box corners of both the
+buffered and unbuffered runs, classified 7 so SMRF ignores them, so both
+see identical extents and identical internal grid phase, leaving the
+neighbour points as the only difference. That would work. It was not
+built.
+
+**Why not.** What the memo currently says is that buffered and unbuffered
+runs are not comparable cell-by-cell, because `filters.smrf` and
+`filters.elm` anchor their internal rasters to the extent of the points
+they receive — demonstrated by shifting the extent 1.5 m with no buffer
+at all and changing 93.1% of cells more than 200 m away. That is a
+*measured mechanism*, and it is a stronger statement than a number would
+be. Compare the predecessor project, which asserted an edge-effect
+limitation it had never tested and then justified not testing it with a
+claim that turned out to be false.
+
+Adding a magnitude to something already honestly characterised buys
+little: the reader already knows the effect exists, knows why it cannot
+be read off a naive comparison, and knows SMRF carries an intrinsic
+0.055 m sensitivity to where the tile boundary falls. The number would
+be nice to have and changes no decision.
+
+**Revisit if** a deliverable ever needs a stated edge tolerance, or if
+multiple adjacent tiles are mosaicked for real — at which point the
+extent-matched design above is the way to get it.

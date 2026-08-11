@@ -195,6 +195,11 @@ def main():
 
     s_marsh = stats(diff[marsh & valid])
     s_crest = stats(diff[crest & valid])
+    # Published prose states the truncation as a magnitude ("truncated by
+    # 0.911 m"), while the table holds it signed. Print both so either
+    # phrasing is traceable to this dump.
+    print(f"crest truncation magnitude: median {abs(s_crest['median']):.4f} m, "
+          f"mean {abs(s_crest['mean']):.4f} m below the vendor surface")
     print(f"""
 READING THIS
 

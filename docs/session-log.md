@@ -411,3 +411,55 @@ stated reason rather than an assumed one: SMRF anchors its grid to the
 input extent, so buffered and unbuffered runs are not comparable
 cell-by-cell. An extent-matched design would settle it and is not built.
 No PDF assembled. Project two still has no git remote.
+
+---
+
+## 2026-08-11 (final) — deliverable standard
+
+Three items: the PDF, the README, and a scope decision.
+
+**The PDF.** 17 pages, reusing project one's parser untouched -- block
+parsing, escaped pipes, orphan control, the 170 DPI re-encode. Only the
+figure map, section structure and appendix handling changed. The memo
+gained two sections (Coverage as the binding constraint; Cell size
+derived from it) because both existed as findings but were folded into
+other sections, and the report's argument needs them standing alone.
+
+Rendering page one and *looking at it* found three defects, one of which
+would have been bad to ship: the title-page strapline was inherited
+verbatim from project one and claimed the work was QC'd against "the
+project's own signed accuracy assessment". No such document exists here
+and no external control of any kind does -- section 1 says so
+explicitly. An unearned credential on page 1 of a deliverable whose
+whole discipline is not claiming more than was measured. Also found: the
+executive-summary extractor returned only the first paragraph and the
+orphans rendered above the heading, and the appendix layout index-errored
+on an empty figure list.
+
+**The audit before generation** caught a genuine contradiction:
+parameter_derivation.md still said "23x" and "58%" where the memo said
+15% and 53%. I had corrected the memo and CLAUDE.md and missed the third
+file. Same wrong-baseline error, reaching two numbers rather than one.
+
+Also fixed the annotation scope. `[cited: ...]` was matched per LINE, and
+markdown soft-wraps prose, so a citation routinely landed on a different
+line from the number it attributed -- this defeated three separate
+citations before I stopped rewrapping prose to satisfy the matcher and
+made the scope a paragraph instead. It now reports how many numbers each
+annotation exempts, so an over-broad citation stays visible.
+
+**The README** is written for a thirty-second skim and leads with the
+finding this site turns on: density is high and nearly useless, because
+ground coverage is the binding constraint. The retractions are in it, as
+their own section, framed as method -- they are the most interesting
+thing in the repository and hiding them would misrepresent how the work
+was done.
+
+**The edge effect stays unquantified, deliberately.** An extent-matched
+design would measure it and was declined: a measured *mechanism* is a
+stronger statement than a number, and the reader already knows the
+effect exists and why a naive comparison cannot show it. Recorded in
+CLAUDE.md as a scope decision so a later session does not "fix" it.
+
+Deliverable state: PDF, memo, derivation, README, six figures, ten
+measurement dumps, permission policy and two hooks. Private remote.
