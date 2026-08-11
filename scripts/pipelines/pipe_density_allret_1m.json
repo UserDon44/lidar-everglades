@@ -1,0 +1,16 @@
+{
+  "pipeline": [
+    {
+      "type": "readers.las",
+      "filename": "C:/Users/ryans/lidar-everglades/data/raw/USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1557n0456.laz"
+    },
+    {
+      "type": "writers.gdal",
+      "filename": "C:/Users/ryans/lidar-everglades/output/dem/density_allret_1m.tif",
+      "resolution": 1.0,
+      "output_type": "count",
+      "binmode": true,
+      "nodata": 0
+    }
+  ]
+}

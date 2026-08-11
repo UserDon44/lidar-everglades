@@ -1,0 +1,14 @@
+# Source point clouds -- large, immutable, re-downloadable from 3DEP
+data/raw/
+
+# Derived rasters regenerate from the pipeline scripts; only prose and
+# assembled deliverables in output/reports/ are tracked.
+# Note: this must be output/* + a negation, NOT a bare output/ exclude --
+# git will not traverse into a fully-excluded directory to find negation
+# rules inside it (verified in project 1 with git check-ignore).
+output/*
+!output/reports/
+
+__pycache__/
+*.pyc
+.claude/
