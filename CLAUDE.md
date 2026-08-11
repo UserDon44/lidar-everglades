@@ -479,3 +479,37 @@ anything, and `git status` stays clean, so nothing ever surfaces it. Use
 `git ls-files <path>` to check whether a supposedly-ignored path is
 actually tracked; `git rm --cached` to untrack while keeping the file.
 Worth doing for any path that accumulates machine-generated local state.
+
+
+## The reference is what keeps being wrong
+
+Three failures across both projects share one shape, and it is worth
+naming because none of them was bad arithmetic or invention — every
+measurement was computed correctly and compared against the wrong thing:
+
+- the retracted seam finding: baseline pooled across the tile instead of
+  per-side, when the east half is flat agriculture and the west has hills
+- the `window` derivation: the embankment's **base** width (32–46 m)
+  instead of its **crown** (6–8 m), when opening cuts at the height in
+  question
+- the "23×" vegetation cost: the `w6`–`w50` tail (0.10%) instead of the
+  **delivered** `w3` tail (0.15%), which makes it 15×
+
+All three survived review, because review checks the computation and the
+computation was fine. The reference sits in the sentence as an
+unexamined given. The standing rule now lives in `~/.claude/CLAUDE.md`:
+any ratio or delta must justify its denominator, not merely state it.
+
+## The canal figure: a number that could not be adjudicated
+
+`2.28 m` was published for the interpolated canal surface. It reproduces
+under no definition tried — median 2.374, mean 2.365, largest-body
+2.381, p25 2.344 — and because no mask, statistic or surface was ever
+recorded beside it, there is no way to establish whether it was a spot
+reading, a different definition, or simply wrong.
+
+That makes it strictly worse than a wrong number: a wrong number gets
+corrected, this one could only be discarded and replaced. Recorded here
+because the temptation is to treat it as a rounding quibble; it is not.
+It is the second instance in this work of exactly this loss, after the
+predecessor project's CHM cluster count of 13 with no search radius.
