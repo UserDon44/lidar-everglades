@@ -29,14 +29,29 @@ error. The rule is *check*, not "assume feet."
 **SFWMD structure S-151** at the L-67A / Miami Canal intersection,
 ~20 mi WNW of Miami, on the Broward/Miami-Dade line, bordering WCA-3.
 
-**−80.509853, 26.011511** (WGS84), from SFWMD's AHED Structures layer
-(`geoweb.sfwmd.gov/agsext1/rest/services/WaterManagementSystem/All_Structures/FeatureServer/4`,
-query `NAME LIKE 'S-151%'`). The record corroborates the site description
-independently rather than merely matching a name: `STRUCTURETYPE=CULVERT`,
-`CANAL=MIAMI CANAL`, **`NUMBER_COMPONENTS=6`** (the six 84-inch culverts),
-SFWMD-owned, active, Fort Lauderdale field station.
+**−80.50985262, 26.01151058** (WGS84), from SFWMD's AHED Structures layer
+(`geoweb.sfwmd.gov/agsext1/rest/services/WaterManagementSystem/All_Structures/FeatureServer/4`).
 
-Note the endpoint returns 403 without a browser User-Agent.
+**The working query is `NAME='S151'` — no hyphen.** This is a
+correction: the query first recorded here was `NAME LIKE 'S-151%'`,
+which matches **zero rows**. The coordinates and attributes recorded
+alongside it were always right; the query string beside them was not, so
+the provenance did not actually re-derive. Caught 2026-08-11 when
+`verify_fetch_api.py` exercised this endpoint and got count 0. Note the
+failure shape — a wrong query string returns a *negative*, the same
+family as the truncation bug, which is why nothing flagged it. Re-derive
+with `scripts/verify_fetch_api.py` (test 5) rather than by retyping.
+
+The record corroborates the site description independently rather than
+merely matching a name: `STRUCTURETYPE=CULVERT`, `CANAL=MIAMI CANAL`,
+**`NUMBER_COMPONENTS=6`** (the six 84-inch culverts), `OWNER=SFWMD`,
+`ISACTIVE=1`, `FIELDSTA=Fort Lauderdale`. Only two records in the
+1,178-structure layer match `%151%` at all; the other is `G151W`, a
+different culvert on canal L-2W near Clewiston, 40 mi away.
+
+Two gotchas: the endpoint returns **403 without a browser User-Agent**,
+and geometry comes back in the layer's own SR unless `outSR=4326` is
+passed.
 
 ## The tile — and there is no vintage choice
 
@@ -158,25 +173,65 @@ than presenting an interpolated water surface as terrain.
 
 ## Next steps, in order
 
-**1. Paginated-API helper — do this BEFORE any further API query.**
-Write a helper that will not return a truncated result set silently:
-compare the returned count against the reported total on every response
-and either page through to completion or raise with both numbers in the
-message. No caller should ever receive a partial list that looks
-complete. Applies to TNM, the SFWMD AHED service, NGS, and anything
-added later.
+**1. ~~Paginated-API helper~~ — DONE (2026-08-11).** See "RESOLVED:
+paginated-API helper" below. `scripts/fetch_api.py` + a live verification
+suite; use it for every API query from here.
 
-*Why it is first, not filed as a nicety*: tonight a wide-bbox TNM query
-returned **300 of 694** items and, on that basis, reported no 3DEP
-coverage for S-151 — for the very project that does cover it. It was
-caught only because a tighter bbox was run for an unrelated reason. The
-failure mode is that a truncated page is indistinguishable from a
-complete one: the query succeeds, the JSON parses, the list is
-well-formed, and the wrong answer is a *negative*, which nothing
-downstream contradicts. Site selection had been one narrow escape from
-being founded on it.
+**2. Derive `window` / `slope` / `threshold`** — the current task. See
+the section below.
 
-**2. Derive `window` / `slope` / `threshold`** — see the section below.
+## RESOLVED: paginated-API helper (2026-08-11)
+
+`scripts/fetch_api.py` — `tnm_products()` and `arcgis_query()`. Neither
+can return a partial list: completeness is proved against an independent
+total, or the call raises. `scripts/verify_fetch_api.py` exercises it
+against the live APIs (5 tests, all passing).
+
+*Why it was priority one*: a wide-bbox TNM query had returned 300 of 694
+items and, on that basis, reported no 3DEP coverage for S-151 — the one
+project that does cover it. Caught only because a tighter bbox was run
+for an unrelated reason.
+
+**Design decisions, and the measurements behind them:**
+
+- **Both backends reduce to `len(items) == total`.** TNM reports `total`
+  in every response; ArcGIS does not, so the helper issues a separate
+  `returnCountOnly=true` query *first* and treats it as authoritative
+  rather than trusting `exceededTransferLimit` to be present. Two
+  different notions of "done" is how one of them ends up quietly wrong.
+- **Paging advances by records actually received**, never by the page
+  size requested. ArcGIS clamps `resultRecordCount` to its layer
+  `maxRecordCount` (2,000 here) without saying so; TNM clamps `max` to
+  1,000. A client that assumes it got what it asked for skips records.
+- **An empty page is retried, not accepted.** This one is *measured, not
+  defensive coding*: TNM returned an empty `items` list with HTTP 200
+  and a correct `total` at offset 1,000 of 35,144, and the identical
+  request succeeded on a later run — a 14-request burst covering offsets
+  0–1,300 produced zero empties. So an empty page is transient, and
+  treating it as end-of-data would have silently returned 1,000 of
+  35,144 as "complete." Four retries, then raise.
+- **An over-broad query is refused, not truncated** (`QueryTooBroadError`,
+  default 10,000). A 1.7°-square bbox matches 35,144 LPC products = 352
+  requests. Refusing with "narrow the bbox or raise max_items" is honest;
+  returning page one is the original bug.
+
+**Live-measured API facts** (re-derive with `verify_fetch_api.py`):
+
+| | value |
+|---|---|
+| TNM `max` clamp | 1,000 (requesting 2,000 yields 1,000) |
+| TNM offset cap | none observed through 1,300 |
+| TNM empty-page hiccup | observed once at offset 1,000; not reproducible |
+| ArcGIS `maxRecordCount` | 2,000 |
+| AHED structures in layer | 1,178 |
+| 0.1° bbox around S-151 | 509 LPC products — page 1 is 19.6% of it |
+
+**The reproduction test is the point.** Test 1 confirms a naive page-1
+read of a realistic 509-item search still misses all four tiles covering
+S-151; test 2 shows the helper finds them from the identical query. Test
+3 cripples the pager to prove it raises rather than returning short —
+that test matters as much as test 2, because the guarantee is not "we
+page correctly," it is "we cannot silently fail to."
 
 ## NOT YET DERIVED — the parameter work (step 2 above)
 

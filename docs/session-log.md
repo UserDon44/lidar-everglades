@@ -137,3 +137,65 @@ remaining data source here is paginated too.
 
 So: helper first, then derive window/slope/threshold from the
 measurements above.
+
+---
+
+## 2026-08-11 — the helper, and what building it turned up
+
+Wrote `scripts/fetch_api.py` and its live verification suite before any
+other API call, as planned. Two things came out of it that were not the
+plan.
+
+**The empty-page discovery.** The first full-scale test raised
+`TruncatedResultError` at 1,000 of 35,144 items — offset 1,000 returned
+zero records with HTTP 200 and a correct `total`. The obvious reading
+was a server-side offset cap, which would have meant "TNM cannot be
+paged past 1,000, subdivide always." That reading was wrong, and
+checking it rather than designing around it was the right call: probing
+offsets individually returned 100 records every time, and a 14-request
+burst across offsets 0–1,300 produced no empties at all. Two runs, no
+delay and paced, both clean.
+
+So the empty page was a transient hiccup, not a limit. That matters more
+than it sounds. It means TNM will, occasionally and unreproducibly, hand
+back a well-formed empty page mid-set — which is the silent-truncation
+failure mode in its purest form. A paginator treating "empty page =
+finished" would have returned 1,000 of 35,144 and reported success.
+The loop now retries the same offset four times before raising, so it is
+robust to the hiccup without ever treating it as completion.
+
+Worth noting the sequence: the helper's *first real act* was to catch a
+failure mode nobody had hypothesized, and the reason it caught it is
+that it refuses to infer completeness from the data running out. Had it
+been written the ordinary way it would have passed its own test.
+
+**The provenance defect.** Test 5 exercises the SFWMD ArcGIS endpoint,
+and returned count 0 for S-151. Last night's record says the structure
+was found with `NAME LIKE 'S-151%'`. That query matches **zero rows**.
+The layer names it `S151`, no hyphen — only two of 1,178 structures
+match `%151%` at all, the other being `G151W` on canal L-2W near
+Clewiston, 40 miles away.
+
+Everything recorded *about* S-151 was correct — coordinates to eight
+decimals, CULVERT, MIAMI CANAL, six components, Fort Lauderdale. Only
+the query string written beside them was wrong, which means the
+provenance did not actually re-derive. That is this project's own
+re-derivability rule failing in miniature, and it failed in the
+now-familiar direction: a wrong query string returns a *negative*, and a
+negative is what nothing downstream contradicts. Same family as the
+truncation bug, discovered by the tool built for the truncation bug.
+
+Corrected in `CLAUDE.md`, and the working query is now executable in
+test 5 rather than remembered — which is the stronger fix. A recorded
+parameter that no one ever runs is a claim; one wired into a test is a
+measurement.
+
+**Also learned and recorded**: TNM clamps `max` to 1,000 (asking 2,000
+yields 1,000), ArcGIS clamps `resultRecordCount` to `maxRecordCount`
+(2,000 on this layer), and neither says so — hence paging by records
+received rather than requested. An over-broad query now raises
+`QueryTooBroadError` rather than grinding through 352 requests or, worse,
+returning page one.
+
+Next: derive window/slope/threshold from the feature scales already
+measured.
