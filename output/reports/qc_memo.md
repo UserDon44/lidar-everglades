@@ -1,14 +1,44 @@
 # QC Memo — Bare-Earth DEM, S-151 / Miami Canal at L-67A
 
-**Site**: SFWMD structure S-151, L-67A / Miami Canal intersection,
-Water Conservation Area 3, Broward / Miami-Dade county line, Florida
-**Source**: USGS 3DEP, `FL_Southeast_2018_D18_SUPPLEMENTAL`, tile
-`e1557n0456`, acquired 2018, published 2019-10-15
+**Site**: SFWMD structure S-151, L-67A / Miami Canal intersection, Water Conservation Area 3, Broward / Miami-Dade county line, Florida
+
+**Source**: USGS 3DEP, `FL_Southeast_2018_D18_SUPPLEMENTAL`, tile `e1557n0456`, acquired 2018, published 2019-10-15
+
 **CRS**: EPSG:6350 — NAD83(2011) / Conus Albers, **metres**
+
 **Vertical**: NAVD88, **Geoid12B** (declared in the LAS header)
+
 **Date**: 2026-08-11
 
 ---
+
+## Executive Summary
+
+A bare-earth DEM was produced from raw returns for the S-151 structure at
+the L-67A / Miami Canal intersection, Water Conservation Area 3, from the
+only 3DEP tile that covers the site. The controlling condition here is
+not point density but **ground** coverage: the tile carries 16.89 pts/m²
+overall yet only 1.26 pts/m² of ground, because 41.10% of it returns
+signal that never reaches the surface through sawgrass and a further
+6.07% returns nothing at all over open water. A measured cell-size sweep
+set the working resolution at 3.0 m; at 1 m, 47.04% of cells would hold
+no ground observation at all.
+
+Across the marsh — 94.6% of the tile — this surface agrees with the
+vendor's delivered ground classification to **0.081 m RMSE**. That figure
+is agreement between two classifications of the same point cloud, not
+accuracy: no external control exists on this tile, and an ASPRS
+Non-Vegetated Vertical Accuracy figure cannot be computed from it.
+
+One limitation is structural and is stated rather than worked around. The
+L-67A levee crown is 6.0–8.5 m wide at its top, narrower than the
+smallest structuring element SMRF can form at this cell size, so the
+delivered surface truncates it by a median 0.911 m. The two requirements
+— ground coverage in the marsh and resolution of the crown — are
+irreconcilable within a single parameter set, and that conflict is a
+property of the site rather than a tuning failure. A finer cell recovers
+the crown at the cost of a 15× increase in marsh cells sitting above the
+vendor surface, which was measured rather than assumed.
 
 ## 1. Scope, and what this document does not claim
 
@@ -25,7 +55,7 @@ Both could be biased identically and nothing here would reveal it.
 A Non-Vegetated Vertical Accuracy figure in the sense of the **ASPRS
 Positional Accuracy Standards for Digital Geospatial Data** cannot be
 computed from this tile alone; it would require new field survey. The
-agreement statistics in §4 are reported as agreement, and should not be
+agreement statistics in §6 are reported as agreement, and should not be
 quoted as RMSEz.
 
 ## 2. Why this site
@@ -49,9 +79,69 @@ Denser data, far less usable ground, and 2.81 m of total relief. Aggregate
 point density satisfies **USGS LiDAR Base Specification** QL1 thresholds,
 but aggregate density is the wrong statistic here: the operative
 constraint is *ground* return density at 1.26 pts/m², which is what
-drives every parameter in §3.
+drives every parameter in §4 and §5.
 
-## 3. Method and parameters
+## 3. Coverage is the binding constraint
+
+Aggregate point density satisfies **USGS LiDAR Base Specification** QL1
+thresholds. Aggregate density is nonetheless the wrong statistic for this
+site, and using it would lead to a resolution the data cannot support.
+
+Per-cell counts were computed with true binning (`binmode`), not a radius
+search — the default radius method inflates apparent density several-fold
+and would badly mislead at 1.26 pts/m². Classifying every 1 m cell by
+what it actually received:
+
+| cause | share of tile |
+|---|---|
+| ground present | 52.9% |
+| returns present, **none reaching ground** — sawgrass | **41.0%** |
+| **no returns at all** — open water | **6.1%** |
+
+**These are two different failures and must not be reported as one
+number.** Vegetation blocking is a classification problem: the returns
+exist and a filter can be asked to find ground among them. Open water is
+irreducible absence — the pulse is absorbed and nothing comes back, so no
+processing choice recovers it. 95.7% of the dropout area lies in clusters
+larger than 100 m², which is to say it is the canals rather than
+scattered noise.
+
+The practical consequence appears in §4: the vegetation gap closes as
+cells grow, and the water floor does not.
+
+## 4. Cell size, derived from coverage
+
+Cell size was measured rather than carried over. The sweep rasterizes
+once at 0.5 m and aggregates by integer factors, so per-cell counts are
+exact and grid phase is identical at every size.
+
+| cell | no ground return | no returns at all | median ground pts/cell |
+|---|---|---|---|
+| 0.5 m | 76.79% | 7.24% | 0 |
+| 1.0 m | 47.04% | 6.06% | 1 |
+| 2.0 m | 18.11% | 5.29% | 3 |
+| **3.0 m** | **8.29%** | 4.72% | 8 |
+| 5.0 m | 4.63% | 3.79% | 22 |
+| 10.0 m | 2.21% | 1.98% | 89 |
+
+The two columns behave differently, and that difference is the argument.
+Cells with no ground return fall steeply — 76.79% to 8.29% — because
+larger cells catch the sparse ground observations that penetrate the
+sawgrass. Cells with no returns at all barely move, from 7.24% to 4.72%,
+because open water does not return signal at any resolution. By 5 m the
+two columns nearly converge, meaning almost every remaining empty cell is
+genuine water rather than missing ground.
+
+**3.0 m is taken as the working value** — the fine end of the usable
+range, keeping ground-empty cells under 10% while preserving as much
+detail as the coverage supports.
+
+For contrast, the prior desert project used a 3.3 ft (≈1.0 m) cell. Here
+that would leave **47.04%** of cells with no ground observation. This is
+the clearest single case in the project for deriving a parameter rather
+than inheriting it.
+
+## 5. Method and parameters
 
 PDAL 2.10.0. Vendor classification is discarded and re-derived, so the
 result is independent of the vendor's decisions:
@@ -74,7 +164,7 @@ derivation, including a retracted first attempt at `window`, is in
 
 | parameter | value | basis |
 |---|---|---|
-| `cell` | 3.0 m | **measured** — coverage sweep (§5.1) |
+| `cell` | 3.0 m | **measured** — coverage sweep (§4) |
 | `window` | 3.0 m | **measured** — crown width vs. structuring element |
 | `slope` | 0.05 | **measured** — marsh slope vs. vegetation height |
 | `threshold` | 0.15 m | **measured** — ground residual σ vs. vegetation height |
@@ -86,7 +176,7 @@ trail, and outputs are compared by checksum rather than by eye — two
 parameter settings past SMRF's convergence point produce byte-identical
 rasters, which neither summary statistics nor a hillshade will reveal.
 
-## 4. Agreement with the vendor surface
+## 6. Agreement with the vendor surface
 
 `dem_w3_s0.05_t0.15.tif` minus `dem_VENDOR_3m_aligned.tif`, both on an
 identical 333×333 grid at 3 m. 100% of cells valid in both.
@@ -128,9 +218,9 @@ replaced by a value whose definition is stated. Same failure as the
 predecessor project's CHM cluster count, which also had no recorded
 search radius and also did not reproduce.
 
-## 5. Limitations
+## 7. Limitations
 
-### 5.1 The L-67A crown is truncated by ~0.76 m — accepted and documented
+### 7.1 The L-67A crown is truncated by ~0.76 m — accepted and documented
 
 **The delivered surface truncates the L-67A embankment crown.** Crest
 cells sit a median **−0.911 m** (mean −0.710 m) relative to the
@@ -182,7 +272,8 @@ A **15× increase** in marsh cells sitting above the vendor surface
 tile that is the actual deliverable.
 
 *Correction, 2026-08-11*: this read "23×" until the deliverable-number
-audit flagged it. 23× is 2.34% ÷ 0.10%, but 0.10% is the tail for
+audit flagged it [cited: superseded value, retained to show the error].
+23× is 2.34% ÷ 0.10%, but 0.10% is the tail for
 `w6`–`w50`; the delivered configuration is `w3`, whose tail is 0.15%.
 The comparison was against the wrong baseline — the same failure class
 as the retracted embankment-width derivation in `parameter_derivation.md`.
@@ -196,7 +287,7 @@ exactly that kind was a real and quantified defect in the prior project.
 A known 0.76 m truncation on 0.64% of the tile is the better outcome, and
 it is stated here rather than discovered downstream.
 
-### 5.7 Bank flanks are classified non-ground
+### 7.2 Bank flanks are classified non-ground
 
 Terrain slope on this tile is **bimodal**: median 0.489%, p90 2.334%, but
 p99 **20.372%** and max 50.796% — a flat marsh plane plus engineered
@@ -204,14 +295,14 @@ banks. Measured by `gdaldem slope -p` on the vendor 3 m surface **as
 originally gridded** (335x334, point-derived extent). On the aligned
 333x333 grid the same measurement gives 0.490 / 2.318 / 20.442 / 51.088:
 the difference is grid phase, not disagreement, and is the same effect
-quantified in §5.5.
+quantified in §7.5.
 `slope = 0.05` is set from the marsh, because setting it from the banks
 would put the radius-1 cutoff at 0.6 m, above the 90th percentile of
 vegetation height, and almost nothing would be removed. The cost is that
 steep bank flanks exceed the cutoff and are rejected. One parameter
 cannot serve both populations.
 
-### 5.8 Ground and vegetation overlap irreducibly
+### 7.3 Ground and vegetation overlap irreducibly
 
 Class-2 ground residual about the 3 m surface has std **0.072 m**
 (p5–p95 spread 0.133 m). Unclassified returns sit at p25 +0.050 m and
@@ -222,15 +313,15 @@ sawgrass in a metre-relief marsh, not a parameter left untuned.
 `threshold = 0.15 m` is placed at roughly 2σ of genuine ground scatter,
 deliberately trading one error against the other.
 
-### 5.9 Open water is absence, not error
+### 7.4 Open water is absence, not error
 
 **6.07%** of the tile returns nothing at all; 95.7% of that area lies in
 clusters larger than 100 m², i.e. the canals rather than scattered
 dropout. This is water absorbing the 1064 nm pulse [cited: sensor class specification] — irreducible, not a
-classification problem. See §4 on why the interpolated canal surface must
+classification problem. See §6 on why the interpolated canal surface must
 not be presented as measured terrain.
 
-### 5.5 Acquisition: two flight lines, flown 19.8 hours apart
+### 7.5 Acquisition: two flight lines, flown 19.8 hours apart
 
 The tile is covered by **two** flight lines — `PointSourceId` 34012
 (north) and 34101 (south) — with GPS times 71,229 s apart, so the passes
@@ -261,11 +352,12 @@ SMRF was deliberately not re-run per swath — it anchors its internal grid
 to the input extent, and two swaths have different extents (§5.6).
 
 An overnight gap was expected to produce a *larger* offset than the
-predecessor project's +0.124 ft (37.8 mm) single-day figure, since GNSS
+predecessor project's +0.124 ft (37.8 mm) single-day figure
+[cited: lidar-portfolio CLAUDE.md], since GNSS
 conditions and wetland water level both change overnight. It did not:
 2.7 mm, an order of magnitude smaller.
 
-**This bears on §4.** The 0.0287 m inter-swath RMS is present in the
+**This bears on §6.** The 0.0287 m inter-swath RMS is present in the
 vendor surface and this one alike, since both are built from all returns
 regardless of swath. It is therefore a component of the 0.081 m marsh
 agreement figure that is **not** classification disagreement — roughly
@@ -278,7 +370,7 @@ coverage". Dropout behaves as expected: 5.23% no-returns at one swath
 versus 3.11% at two. So the cell-size sweep in §5.1 is not an average
 across good and bad acquisition.
 
-### 5.6 Single tile, no adjacent context
+### 7.6 Single tile, no adjacent context
 
 Classification near the tile edge lacks neighbourhood context from
 outside the tile, and no buffering from adjacent tiles was implemented
@@ -288,7 +380,7 @@ project, where a 122 ft reach [cited: lidar-portfolio CLAUDE.md]
 produced measurable seam discontinuity.
 Not measured on this tile; noted as unquantified.
 
-## 6. Deliverables
+## 8. Deliverables
 
 | file | description |
 |---|---|

@@ -191,10 +191,20 @@ structuring-element scale, so `w3`'s better crest is not bought by
 retaining vegetation. The mechanism is verified independently of the
 prediction that proposed it.
 
-**For `cell`: confirmed.** Cell 1.5 m shows a 23× increase in marsh cells
-more than 0.15 m above the vendor surface and a 58% higher RMSE. Its
-99.6% crown preservation is substantially bought by retaining non-ground
-returns. Its crest number alone would have recommended it.
+**For `cell`: confirmed.** Cell 1.5 m shows a **15×** increase in marsh
+cells more than 0.15 m above the vendor surface (2.34% vs 0.15%) and a
+**53%** higher marsh RMSE (0.0760 vs 0.0497 m). Its 99.6% crown
+preservation is substantially bought by retaining non-ground returns.
+Its crest number alone would have recommended it.
+
+*Correction, 2026-08-11* [cited: superseded values, retained to show the error]: this section previously read "23×" and "58%".
+Both compared cell 1.5 m against the `w6`–`w50` figures (0.10% tail,
+0.0481 m RMSE) rather than against the **delivered** `w3` run (0.15%,
+0.0497 m). Same wrong-reference error as the retracted `window`
+derivation above, and it reached two numbers rather than one. The memo
+was corrected first and this file was missed; the deliverable-number
+audit caught the disagreement between them. Conclusion unchanged, both
+magnitudes were overstated.
 
 ## 3b. `window` = 3.0 m — **MEASURED**, with a stated residual limitation
 

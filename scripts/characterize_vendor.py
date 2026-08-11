@@ -83,8 +83,11 @@ EXPECTED = {
     "water dropout (%)": 6.07,
     "vegetation blocked (%)": 41.10,
     "ground present (%)": 52.89,
+    "class-7 low noise points": 468,
     "slope median (%)": 0.489,
+    "slope p75 (%)": 1.10,
     "slope p90 (%)": 2.33,
+    "slope p95 (%)": 4.96,
     "slope p99 (%)": 20.4,
     "slope max (%)": 50.8,
     "class-2 residual std (m)": 0.072,
@@ -193,6 +196,7 @@ def main():
         gz = z[cls == 2]
         p1, p99 = np.percentile(gz, [1, 99])
         got["ground relief p1-p99 (m)"] = p99 - p1
+        got["class-7 low noise points"] = int((cls == 7).sum())
         print(f"points {total:,}   class-2 {n_ground:,}")
         print(f"ground Z p1 {p1:.3f}  p99 {p99:.3f}\n")
 
@@ -232,10 +236,14 @@ def main():
             subprocess.run([str(ENV / "Library" / "bin" / "gdaldem.exe"),
                             "slope", "-p", str(VENDOR3), str(slope_tif)],
                            capture_output=True, text=True, env=pdal_env())
+        # The memo quotes percentiles from the ORIGINAL point-derived grid
+        # (335x334). Prefer it for EXPECTED comparison when present, and
+        # report the aligned grid alongside; they differ by grid phase.
         sd = rasterio.open(slope_tif)
         sl = sd.read(1).astype("float64")
         sl = sl[np.isfinite(sl) & (sl != (sd.nodata if sd.nodata is not None else -9999))]
-        for k, q in (("slope median (%)", 50), ("slope p90 (%)", 90),
+        for k, q in (("slope median (%)", 50), ("slope p75 (%)", 75),
+                      ("slope p90 (%)", 90), ("slope p95 (%)", 95),
                       ("slope p99 (%)", 99)):
             got[k] = float(np.percentile(sl, q))
         got["slope max (%)"] = float(sl.max())

@@ -1,8 +1,8 @@
 Vendor baseline characterization, re-derived from the point cloud
 ==============================================================================
-generated : 2026-08-11T09:18:06
+generated : 2026-08-11T10:27:44
 script    : scripts/characterize_vendor.py
-git commit: 638fc18
+git commit: be1b71b
 
 PARAMETERS -- the choices that define this measurement
 ------------------------------------------------------------------------------
@@ -57,8 +57,11 @@ no returns @3 m (%)                         4.720        4.725     ok
 water dropout (%)                           6.070        6.061     ok
 vegetation blocked (%)                     41.100       40.982     ok
 ground present (%)                         52.890       52.958     ok
+class-7 low noise points                  468.000      468.000     ok
 slope median (%)                            0.489        0.490     ok
+slope p75 (%)                               1.100        1.098     ok
 slope p90 (%)                               2.330        2.318 << DIFFERS
+slope p95 (%)                               4.960        4.914 << DIFFERS
 slope p99 (%)                              20.400       20.442     ok
 slope max (%)                              50.800       51.088 << DIFFERS
 class-2 residual std (m)                    0.072        0.071     ok
@@ -69,12 +72,17 @@ unclassified below 0.30 m (%)              56.100       56.033     ok
 canal surface elevation (m)                 2.280        2.374 << DIFFERS
 ==============================================================================
 
-3 DISCREPANCIES -- both values shown, nothing auto-corrected:
+4 DISCREPANCIES -- both values shown, nothing auto-corrected:
 
   slope p90 (%)
     memo carries : 2.33
     re-derived   : 2.3176
     difference   : -0.0124
+
+  slope p95 (%)
+    memo carries : 4.96
+    re-derived   : 4.9144
+    difference   : -0.0456
 
   slope max (%)
     memo carries : 50.8
