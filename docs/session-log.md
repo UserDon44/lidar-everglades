@@ -507,3 +507,49 @@ whether the computation was done correctly and it always had been. What
 caught them was making the comparison explicit: naming the denominator,
 checksumming the outputs, re-deriving the foundation, or simply looking
 at the figure.
+
+
+---
+
+## 2026-08-11 (later) — hydrology, by not doing the obvious thing
+
+Project one ran a full D8 workflow: fill, flow direction, accumulation,
+stream extraction, watersheds. The temptation here was to match that
+structure, and Ryan explicitly asked whether it applied before anything
+was run rather than after.
+
+It does not, and the test that settles it took one measurement. D8 picks
+each cell's flow direction from the gap between its steepest and
+second-steepest neighbour. That gap has a median of 4 mm across the
+marsh, against a noise floor of 81 mm, with 99.6% of cells below it. The
+routing would be reading differences an order of magnitude smaller than
+the surface's own uncertainty.
+
+What makes this worth writing rather than skipping is that the output
+would have looked *fine*. A D8 network on this tile would be dendritic,
+connected and entirely convincing, and nothing in it would signal that
+the direction of every arrow was set by noise. That is the same shape as
+every retraction in these two projects: a method applied correctly to a
+comparison it cannot support.
+
+The 0.055 m grid-phase sensitivity from section 7.6 turns out to exceed
+the steepest descent at 84% of cells, which means the network would
+rearrange if the tile boundary moved 1.5 m. Two findings that were
+recorded separately turned out to be the same finding.
+
+The argument a water manager would find most damning is not about
+precision at all: S-151 is a culvert, and a DEM cannot represent a
+subsurface conveyance. Terrain routing would send water around the
+structure the survey exists to characterise.
+
+Ran instead the two analyses the elevation distribution supports.
+Hypsometry produced the most striking number in the project: 30 cm of
+stage takes the tile from 5% to 94% inundated. That is a real property of
+a managed marsh and it needed no gradient assumption anywhere.
+
+The crest profile is on the VENDOR surface, deliberately. Ours truncates
+the crown by 0.911 m, which is precisely the quantity being plotted --
+running it on our own deliverable would have reported our known
+processing deficiency as terrain. Stating that choice in the method is
+the point; a reader who does not know which surface was used cannot
+evaluate the number.

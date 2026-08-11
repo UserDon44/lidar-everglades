@@ -380,7 +380,130 @@ project, where a 122 ft reach [cited: lidar-portfolio CLAUDE.md]
 produced measurable seam discontinuity.
 Not measured on this tile; noted as unquantified.
 
-## 8. Deliverables
+## 8. Hydrologic analysis: what this terrain supports
+
+### 8.1 Gradient-based flow routing does not apply here, measured
+
+D8 flow routing assigns each cell's discharge to whichever of its eight
+neighbours lies lowest. The quantity that decides *which* neighbour is
+the gap between the steepest and second-steepest descent. Across 99,581
+marsh cells:
+
+| | |
+|---|---|
+| median gap between steepest and second-steepest neighbour | **0.004 m** |
+| p75 | 0.011 m |
+| p90 | 0.023 m |
+| **DEM noise floor** (marsh agreement RMSE, §6) | **0.081 m** |
+| cells whose direction-deciding gap is below that floor | **99.6%** |
+
+The steepest descent itself is no better: median 0.017 m, with **92.5%**
+of marsh cells below the 0.081 m noise floor and **84.0%** below the
+0.055 m grid-phase sensitivity alone.
+
+So a D8 network here would assign flow direction from elevation
+differences roughly **an order of magnitude smaller than the surface's
+own uncertainty**. The output would not be approximate; it would be a map
+of the noise, and it would look entirely plausible — dendritic, connected
+and confident.
+
+### 8.2 The grid-phase consequence, which ties this to §7.6
+
+§7.6 records that `filters.smrf` anchors its internal raster to the extent
+of the points it receives, and that shifting the input extent by 1.5 m
+changes 93.1% of cells more than 200 m away, with an intrinsic
+sensitivity of 0.055 m.
+
+That figure is **larger than the steepest descent at 84.0% of marsh
+cells**. Re-run this pipeline with the tile boundary drawn 1.5 m
+differently and the flow network would substantially rearrange — not
+because the terrain changed, but because grid phase moves cells by more
+than the differences the routing compares. A result that changes when the
+tile boundary moves is not a property of the landscape.
+
+### 8.3 The culvert: the one feature the site exists for is invisible
+
+The argument above is about precision. This one is about the method being
+structurally wrong for the site.
+
+**S-151 is a culvert.** Its entire function is to pass water *through* the
+L-67A levee, under control, in whichever direction operations require. A
+DEM shows an unbroken earthen barrier. Terrain-based routing has no
+representation for a subsurface conveyance, so D8 would route flow *along*
+and *around* the levee and would never pass water through the structure
+the survey was commissioned to characterise.
+
+Two further points compound it. Flow direction in a managed compartment is
+set by gate operations rather than by gradient, and can reverse. And the
+canal bed was never measured — water absorbs the 1064 nm pulse, which is
+why 6.07% of the tile returns nothing — so conveyance capacity is
+unavailable rather than merely uncertain.
+
+**This is reported as a finding rather than a gap.** A hydrologic workflow
+was not attempted and abandoned; it was ruled out by measurement before
+being run.
+
+### 8.4 Stage-area hypsometry
+
+What the elevation *distribution* supports, since local gradients do not
+survive scrutiny but the distribution does. This is a threshold on the
+DEM: no routing, no gradient assumption.
+
+| water surface (m) | inundated | share of tile | ha per additional cm |
+|---|---|---|---|
+| 2.30 | 5.1 ha | 5.1% | 0.09 |
+| **2.40** | 47.4 ha | 47.5% | **6.90** |
+| 2.50 | 77.8 ha | 77.9% | 2.82 |
+| 2.60 | 93.4 ha | 93.6% | 0.93 |
+| 3.00 | 96.8 ha | 97.0% | 0.03 |
+
+**The system is a knife edge.** Thirty centimetres of stage — 2.30 m to
+2.60 m — takes the tile from 5% to 94% inundated. Peak sensitivity is at
+**2.40 m, where each additional centimetre floods 6.90 ha**, about 7% of
+the tile. Above 2.7 m the curve is essentially flat: everything that can
+flood already has, and further stage only climbs the levee flanks.
+
+Half the tile lies below 2.407 m and three quarters below 2.489 m — an
+82 mm spread containing 25% of the area.
+
+**Not tied to a gauge.** These are NAVD88 / Geoid12B elevations. SFWMD
+stage records are commonly NGVD29, roughly a 1.5 ft offset in south
+Florida. Converting between them is a deliberate exercise and is not
+attempted here; the curve is presented in the DEM's own datum.
+
+### 8.5 Levee crest profile — computed on the vendor surface
+
+**This analysis uses the vendor's classification, not this project's.**
+§7.1 documents that our surface truncates the levee crown by a median
+0.911 m, and the crown elevation is precisely what a crest profile
+measures. Running it on our own deliverable would report a known
+processing deficiency as terrain. Where a specific analysis has a known
+deficiency in one input and not the other, using the better input and
+saying so is the correct call.
+
+Crest cells were projected onto the levee's own axis — the first principal
+component of their coordinates, bearing 20°, since the levee runs NE–SW
+and no row or column transect follows it — then binned at 15 m, taking the
+maximum elevation per bin.
+
+| | |
+|---|---|
+| crest length along axis | 625 m |
+| maximum | 5.288 m (+2.924 above marsh) |
+| median | 4.947 m |
+| minimum | 4.569 m (+2.205 above marsh) |
+| **variation along the crest** | **0.719 m** |
+
+The three lowest bins — 4.569 m, 4.639 m and 4.725 m — sit within 60 m of
+each other near the S-151 crossing, and are where the barrier is weakest
+relative to itself.
+
+**Read as relative freeboard, not as overtopping risk.** This is a
+bare-earth surface with no gauge tie and no design-crest reference. It
+says where the levee is lowest along its own length, which is a real and
+checkable statement; it does not say whether that elevation is adequate.
+
+## 9. Deliverables
 
 | file | description |
 |---|---|

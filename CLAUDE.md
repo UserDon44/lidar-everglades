@@ -625,3 +625,53 @@ be nice to have and changes no decision.
 **Revisit if** a deliverable ever needs a stated edge tolerance, or if
 multiple adjacent tiles are mosaicked for real — at which point the
 extent-matched design above is the way to get it.
+
+
+## RESOLVED: hydrology — D8 ruled out by measurement (2026-08-11)
+
+`scripts/analyze_hydrology.py`, dump `output/reports/hydrology.txt`,
+memo section 8.
+
+**D8 does not apply here, and that is the finding.** The quantity that
+decides which neighbour a cell drains to is the gap between its steepest
+and second-steepest descent. Across 99,581 marsh cells that gap has a
+**median of 0.004 m**, and **99.6%** of cells fall below the 0.081 m
+marsh noise floor. The steepest descent itself is median 0.017 m, with
+92.5% below the noise floor and 84.0% below the 0.055 m grid-phase
+sensitivity alone.
+
+So a flow network here would be computed from differences an order of
+magnitude below the surface's own uncertainty. It would look entirely
+plausible — dendritic, connected, confident — and be a map of noise.
+
+**This ties directly to §7.6.** The 0.055 m grid-phase sensitivity
+exceeds the steepest descent at 84% of marsh cells, so shifting the tile
+boundary 1.5 m would rearrange the network. A result that moves when the
+tile boundary moves is not a property of the landscape.
+
+**The structural argument is worse than the precision one.** S-151 is a
+culvert: its whole function is passing water *through* the levee, under
+control, in whichever direction operations require. A DEM shows an
+unbroken barrier, so terrain routing would send flow around the one
+feature the site exists for. Flow direction is set by gates, not
+gradient, and can reverse; and the canal bed is unmeasured because water
+absorbs the pulse, so conveyance capacity is unavailable rather than
+uncertain.
+
+**What was run instead**, both of which survive because they need the
+elevation *distribution* rather than local gradients:
+
+- **Stage-area hypsometry.** The system is a knife edge: 30 cm of stage
+  (2.30 → 2.60 m) takes the tile from 5% to 94% inundated, peaking at
+  2.40 m where each additional centimetre floods 6.90 ha. Half the tile
+  lies below 2.407 m and three quarters below 2.489 m — 25% of the area
+  inside an 82 mm band. Not tied to a gauge: NAVD88/Geoid12B against
+  SFWMD's NGVD29 is ~1.5 ft and deserves separate deliberate treatment.
+- **Levee crest profile, on the VENDOR surface.** 625 m of crest, varying
+  0.719 m, minimum 4.569 m. Computed on the vendor's classification
+  because ours truncates the crown by a median 0.911 m (§7.1) — which is
+  exactly what a crest profile measures. Using the better input for one
+  specific analysis, and stating why, is the correct call.
+
+**Do not add D8 later to match project one's structure.** The absence is
+the result.

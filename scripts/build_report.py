@@ -77,6 +77,24 @@ FIGURE_MAP = {
          "however, lies off the crest on the steep canal and bank flanks, "
          "which is the effect described in §7.2."),
     ],
+    "8.4 Stage-area hypsometry": [
+        ("fig10_hypsometry.png",
+         "Figure 9. Stage-area hypsometry. Thirty centimetres of stage "
+         "takes the tile from 5% to 94% inundated, with peak sensitivity "
+         "at 2.40 m where each additional centimetre floods 6.90 ha. No "
+         "flow routing is involved — this is a threshold on the "
+         "elevation distribution, which survives where local gradients "
+         "do not (§8.1)."),
+    ],
+    "8.5 Levee crest profile — computed on the vendor surface": [
+        ("fig11_crest_profile.png",
+         "Figure 10. L-67A crest profile along the levee's own axis, on "
+         "the VENDOR surface. This project's own truncates the crown by a "
+         "median 0.911 m (§7.1), which is exactly the quantity "
+         "plotted, so the better input is used and the choice stated. The "
+         "crest varies 0.719 m along 625 m; the three lowest bins are "
+         "marked."),
+    ],
     "7.1 The L-67A crown is truncated by ~0.76 m — accepted and documented": [
         ("fig03_embankment_profile.png",
          "Figure 7. Embankment width against height above marsh. A levee "

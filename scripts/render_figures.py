@@ -360,13 +360,10 @@ def fig05_qc_regions():
     ax.axvline(0, color="grey", lw=0.8)
     ax.set_xlabel("delivered minus vendor (m)")
     ax.set_ylabel("density")
-    ax.set_title("Three populations, not one
-"
+    ax.set_title("Three populations, not one\n"
                  "The pooled RMSE (0.111 m) describes none of them. "
-                 "Agreement between two
-classifications, NOT accuracy: no "
-                 "external control exists on this tile.
-"
+                 "Agreement between two\nclassifications, NOT accuracy: "
+                 "no external control exists on this tile.\n"
                  "For where these differences fall spatially, see Figure 6.",
                  fontsize=10.5)
     ax.legend(fontsize=9)
@@ -501,6 +498,100 @@ def fig09_density_3m():
     save(fig, "fig09_density_3m.png")
 
 
+# ======================================================================
+# fig10 -- stage-area hypsometry. The analysis this terrain supports,
+# and the one D8 cannot replace: a threshold on the elevation
+# distribution, with no gradient assumption anywhere in it.
+# ======================================================================
+def fig10_hypsometry():
+    rows = np.load(DEM / "hypsometry.npy")
+    stage, area_ha, pct, rate = rows[:, 0], rows[:, 1], rows[:, 2], rows[:, 3]
+
+    fig, ax = plt.subplots(figsize=(9.0, 6.0))
+    ax.plot(stage, pct, lw=2.4, color="#2b5d9e", label="area inundated")
+    ax.set_xlabel("Water surface elevation (m, NAVD88 / Geoid12B)")
+    ax.set_ylabel("Share of tile inundated (%)", color="#2b5d9e")
+    ax.tick_params(axis="y", labelcolor="#2b5d9e")
+    ax.set_ylim(0, 100)
+    ax.grid(alpha=0.3)
+
+    ax2 = ax.twinx()
+    ok = np.isfinite(rate)
+    ax2.plot(stage[ok], rate[ok], lw=1.6, ls="--", color="#b5423a",
+             label="sensitivity")
+    ax2.set_ylabel("Hectares flooded per additional cm of stage",
+                   color="#b5423a")
+    ax2.tick_params(axis="y", labelcolor="#b5423a")
+
+    pk = np.nanargmax(np.where(ok, rate, np.nan))
+    ax2.annotate(f"peak sensitivity {stage[pk]:.2f} m\n"
+                 f"{rate[pk]:.1f} ha per cm",
+                 xy=(stage[pk], rate[pk]), xytext=(stage[pk] + 0.35,
+                                                    rate[pk] * 0.8),
+                 fontsize=9, color="#b5423a",
+                 arrowprops=dict(arrowstyle="->", color="#b5423a"))
+    ax.axvspan(2.30, 2.60, color="#2b5d9e", alpha=0.08)
+    # Anchor on the BLUE curve, well clear of the red sensitivity trace.
+    # An earlier placement put the arrowhead visually on the red curve
+    # while the text described the blue one.
+    ax.annotate("5% to 94% inundated\nacross 30 cm of stage",
+                xy=(2.58, 91), xytext=(2.95, 68), fontsize=9,
+                arrowprops=dict(arrowstyle="->", color="#2b5d9e"),
+                color="#2b5d9e")
+
+    ax.set_title("Stage-area hypsometry\n"
+                 "No flow routing: this is a threshold on the elevation "
+                 "distribution, which\nis well constrained even where local "
+                 "gradients are not (see section 8).\n"
+                 "Elevations are NAVD88/Geoid12B and are NOT tied to a "
+                 "gauge datum.", fontsize=10.5)
+    lines = ax.get_lines() + ax2.get_lines()
+    ax.legend(lines, [l.get_label() for l in lines], loc="upper left",
+              fontsize=9)
+    fig.tight_layout()
+    save(fig, "fig10_hypsometry.png")
+
+
+# ======================================================================
+# fig11 -- levee crest profile, on the VENDOR surface. Our own truncates
+# the crown by a median 0.911 m, which is the very quantity this plots.
+# ======================================================================
+def fig11_crest_profile():
+    prof = np.load(DEM / "crest_profile.npy")
+    t, e = prof[:, 0], prof[:, 1]
+    v, _, _ = load(VENDOR)
+    marsh_z = float(np.nanmedian(v))
+
+    fig, ax = plt.subplots(figsize=(9.4, 5.6))
+    ax.plot(t, e, lw=2.0, color="#6b4c9a", marker="o", ms=3.5,
+            label="crest elevation (max per 15 m bin)")
+    ax.axhline(marsh_z, color="#4c9f70", ls="--", lw=1.4,
+               label=f"marsh datum {marsh_z:.2f} m")
+    ax.fill_between(t, marsh_z, e, color="#6b4c9a", alpha=0.12)
+
+    order = np.argsort(e)[:3]
+    for i in order:
+        ax.plot(t[i], e[i], marker="v", ms=11, color="#b5423a", zorder=5)
+        ax.annotate(f"{e[i]:.2f} m", xy=(t[i], e[i]),
+                    xytext=(0, -20), textcoords="offset points",
+                    ha="center", fontsize=8.5, color="#b5423a")
+    ax.plot([], [], marker="v", ls="", color="#b5423a",
+            label="three lowest bins (first to overtop)")
+
+    ax.set_xlabel("Distance along levee axis (m, bearing 20 deg)")
+    ax.set_ylabel("Elevation (m, NAVD88 / Geoid12B)")
+    ax.set_title("L-67A levee crest profile - VENDOR surface\n"
+                 "Computed on the vendor's classification, NOT this "
+                 "project's: ours truncates\nthe crown by a median 0.911 m "
+                 "(section 7.1), which is exactly what this measures.\n"
+                 "Crest varies 0.72 m along its length; read as freeboard "
+                 "relative to itself.", fontsize=10)
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=9, loc="lower right")
+    fig.tight_layout()
+    save(fig, "fig11_crest_profile.png")
+
+
 if __name__ == "__main__":
     print("rendering figures to output/figures/ ...")
     fig01_coverage()
@@ -512,4 +603,6 @@ if __name__ == "__main__":
     fig07_hillshade()
     fig08_difference_map()
     fig09_density_3m()
+    fig10_hypsometry()
+    fig11_crest_profile()
     print("done")
