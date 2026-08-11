@@ -166,8 +166,14 @@ def fig01_coverage():
                         vmin=0, vmax=40)
     cb = plt.colorbar(im, ax=axes[0], fraction=0.046, pad=0.03, extend="max")
     cb.set_label("all returns per m²")
+    # The density structure is the two flight lines, not a corner: both
+    # the north and south edges are single-coverage (measured 12.5/13.6
+    # and 10.6/11.6 pts/m² west/east) while the middle band, where the
+    # swaths overlap, runs 19.6. An earlier caption called this an "SE
+    # corner", which described a full-width band by one of its corners.
     axes[0].set_title("All returns — 16.89 pts/m² mean\n"
-                       "SE corner is thinner: 95% single-swath vs 44% elsewhere")
+                       "N and S edges are single-swath (11–14 pts/m²);\n"
+                       "the middle band has both lines (19.6 pts/m²)")
 
     im = axes[1].imshow(g3 / 9.0, extent=ext, origin="upper", cmap="magma",
                         vmin=0, vmax=6)
@@ -175,7 +181,7 @@ def fig01_coverage():
     cb.set_label("ground returns per m²")
     axes[1].set_title("Ground returns — 1.26 pts/m² mean\n"
                        "7.4% of points; the operative constraint.\n"
-                       "Bright SE corner is the S-151 works (hard surfaces)")
+                       "Bright SE feature is the S-151 works (hard surfaces)")
 
     # Void classes: the finding is that 'void' is two different failures.
     cls = np.zeros(a3.shape)
@@ -197,7 +203,8 @@ def fig01_coverage():
                label="returns, none ground — 41.0% (toe/berm vegetation)"),
         Line2D([], [], marker="s", ls="", ms=10, mfc="#2b5d9e", mec="none",
                label="no returns at all — 6.1%"),
-    ], loc="lower left", fontsize=8, framealpha=0.9)
+    ], loc="upper left", bbox_to_anchor=(0.0, -0.14), fontsize=8,
+       framealpha=0.9, borderaxespad=0.0)
 
     for ax in axes:
         ax.set_xlabel("Easting (m, EPSG:6350)")
@@ -207,8 +214,8 @@ def fig01_coverage():
         mark_s151(ax)
     axes[0].set_ylabel("Northing (m, EPSG:6350)")
     fig.suptitle("Coverage, not density, is the binding constraint at S-151\n"
-                 "The SE corner has TWO causes: the S-151 structure (panel 2) "
-                 "and single-swath coverage (panel 1)", fontsize=12)
+                 "Density structure is the two flight lines (panel 1); the "
+                 "bright SE feature is the S-151 works (panel 2)", fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     save(fig, "fig01_coverage.png")
 

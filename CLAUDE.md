@@ -545,3 +545,35 @@ and "it lines up in the picture" is a hypothesis, not a result. In the
 same session the reviewer's *other* two readings — the SE corner being
 S-151, and the crown speckle being suspect — were both worth acting on,
 and one was confirmed. Good instincts still need the measurement.
+
+
+## Claude can see images; the limitation is reliability, not perception
+
+Corrected 2026-08-11. This file and the predecessor project's both said,
+in effect, "you can't see a hillshade and I can." That is **false** —
+images can be read directly with the Read tool, and doing so immediately
+caught two defects in fig01 that had survived several rounds of review:
+a legend box overprinting the scale bar, and a caption calling a
+full-width density band an "SE corner".
+
+The framing was wrong but the *practice* it produced was roughly right,
+for a different reason. What is unreliable is not perception, it is
+**visual inference**:
+
+- Gross, unambiguous defects — overlapping elements, wrong labels,
+  missing colourbars, a blank panel — are caught reliably by looking,
+  and looking is much faster than reasoning about the plotting code.
+- Structural readings — "this band is the swath boundary", "these
+  strips are the levee crown" — are HYPOTHESES. Two have now been wrong:
+  the retracted hill artifact and the green-strip reading. Both were
+  confident, both were about spatial relationships, both needed one
+  measurement to settle.
+- Subtle comparisons between similar images are the worst case and
+  should not be attempted at all. The predecessor project's two
+  hillshades were BYTE-IDENTICAL and were confidently described as
+  differing. Use checksums.
+
+So the rule becomes: **look at every figure produced, before sending
+it** — it is cheap and catches real defects. But treat anything inferred
+from looking exactly as one would treat a reviewer's impression: worth
+acting on, never sufficient on its own. The measurement still decides.
