@@ -196,7 +196,7 @@ exactly that kind was a real and quantified defect in the prior project.
 A known 0.76 m truncation on 0.64% of the tile is the better outcome, and
 it is stated here rather than discovered downstream.
 
-### 5.2 Bank flanks are classified non-ground
+### 5.7 Bank flanks are classified non-ground
 
 Terrain slope on this tile is **bimodal**: median 0.489%, p90 2.334%, but
 p99 **20.372%** and max 50.796% — a flat marsh plane plus engineered
@@ -211,7 +211,7 @@ vegetation height, and almost nothing would be removed. The cost is that
 steep bank flanks exceed the cutoff and are rejected. One parameter
 cannot serve both populations.
 
-### 5.3 Ground and vegetation overlap irreducibly
+### 5.8 Ground and vegetation overlap irreducibly
 
 Class-2 ground residual about the 3 m surface has std **0.072 m**
 (p5–p95 spread 0.133 m). Unclassified returns sit at p25 +0.050 m and
@@ -222,7 +222,7 @@ sawgrass in a metre-relief marsh, not a parameter left untuned.
 `threshold = 0.15 m` is placed at roughly 2σ of genuine ground scatter,
 deliberately trading one error against the other.
 
-### 5.4 Open water is absence, not error
+### 5.9 Open water is absence, not error
 
 **6.07%** of the tile returns nothing at all; 95.7% of that area lies in
 clusters larger than 100 m², i.e. the canals rather than scattered
@@ -230,7 +230,39 @@ dropout. This is water absorbing the 1064 nm pulse [cited: sensor class specific
 classification problem. See §4 on why the interpolated canal surface must
 not be presented as measured terrain.
 
-### 5.5 Single tile, no adjacent context
+### 5.5 Acquisition: two flight lines, flown 19.8 hours apart
+
+The tile is covered by **two** flight lines — `PointSourceId` 34012
+(north) and 34101 (south) — with GPS times 71,229 s apart, so the passes
+are on different days rather than one continuous lift. Coverage at 10 m
+is **48.8% single-swath, 49.2% double, 2.0% uncovered**.
+
+**Measured inter-swath offset: −0.0027 m** (marsh, 21,723 cells observed
+by both), RMSE 0.0287 m. Method: vendor class-2 points split by
+`PointSourceId`, each rasterized on the identical explicit grid with no
+IDW fallback, compared only where both swaths actually observed ground.
+SMRF was deliberately not re-run per swath — it anchors its internal grid
+to the input extent, and two swaths have different extents (§5.6).
+
+An overnight gap was expected to produce a *larger* offset than the
+predecessor project's +0.124 ft (37.8 mm) single-day figure, since GNSS
+conditions and wetland water level both change overnight. It did not:
+2.7 mm, an order of magnitude smaller.
+
+**This bears on §4.** The 0.0287 m inter-swath RMS is present in the
+vendor surface and this one alike, since both are built from all returns
+regardless of swath. It is therefore a component of the 0.081 m marsh
+agreement figure that is **not** classification disagreement — roughly
+13% of its variance. The remainder is genuinely classification.
+
+**Coverage is not stratified by acquisition.** Single-swath cells are
+44.24% no-ground and double-swath cells 47.69%, against the tile-wide
+47.04% — a small spread running *opposite* to "degraded single
+coverage". Dropout behaves as expected: 5.23% no-returns at one swath
+versus 3.11% at two. So the cell-size sweep in §5.1 is not an average
+across good and bad acquisition.
+
+### 5.6 Single tile, no adjacent context
 
 Classification near the tile edge lacks neighbourhood context from
 outside the tile, and no buffering from adjacent tiles was implemented

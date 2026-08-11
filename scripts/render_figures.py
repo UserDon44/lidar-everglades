@@ -66,6 +66,21 @@ ENV = Path(r"C:\Users\ryans\miniforge3\envs\lidar")
 DPI = 200
 
 VENDOR = DEM / "dem_VENDOR_3m_aligned.tif"
+
+# S-151 works, SFWMD AHED coordinate projected to EPSG:6350. Marked on
+# the coverage panels because an unexplained disruption in a coverage
+# figure invites the reader to wonder what went wrong; naming it settles
+# that. Verified by containment, not by matching shapes.
+S151_XY = (1557843.9, 456241.2)
+
+
+def mark_s151(ax, color="white"):
+    ax.plot(*S151_XY, marker="o", ms=9, mfc="none", mec=color, mew=1.8,
+            zorder=13)
+    ax.annotate("S-151", xy=S151_XY, xytext=(-46, 16),
+                textcoords="offset points", color=color, fontsize=9,
+                zorder=13, fontweight="bold",
+                bbox=dict(fc="black", ec="none", alpha=0.45, pad=1.5))
 FINAL = DEM / "dem_w3_s0.05_t0.15.tif"
 
 
@@ -151,14 +166,16 @@ def fig01_coverage():
                         vmin=0, vmax=40)
     cb = plt.colorbar(im, ax=axes[0], fraction=0.046, pad=0.03, extend="max")
     cb.set_label("all returns per m²")
-    axes[0].set_title("All returns — 16.89 pts/m² mean\n(QL1-class density)")
+    axes[0].set_title("All returns — 16.89 pts/m² mean\n"
+                       "SE corner is thinner: 95% single-swath vs 44% elsewhere")
 
     im = axes[1].imshow(g3 / 9.0, extent=ext, origin="upper", cmap="magma",
                         vmin=0, vmax=6)
     cb = plt.colorbar(im, ax=axes[1], fraction=0.046, pad=0.03, extend="max")
     cb.set_label("ground returns per m²")
     axes[1].set_title("Ground returns — 1.26 pts/m² mean\n"
-                       "7.4% of points; the operative constraint")
+                       "7.4% of points; the operative constraint.\n"
+                       "Bright SE corner is the S-151 works (hard surfaces)")
 
     # Void classes: the finding is that 'void' is two different failures.
     cls = np.zeros(a3.shape)
@@ -166,13 +183,18 @@ def fig01_coverage():
     cls[a3 == 0] = 2                  # water dropout
     cmap = matplotlib.colors.ListedColormap(["#e8e8e8", "#4c9f70", "#2b5d9e"])
     axes[2].imshow(cls, extent=ext, origin="upper", cmap=cmap, vmin=0, vmax=2)
+    # The green class was proposed to be the levee crown. Measured and
+    # refuted: 6 of 706 crest cells are green, and green cells sit at
+    # +0.07 m above marsh against the crown's +2.37 m. They are the
+    # vegetated toe and berm flanking the levee, enriched 9-51 m out.
     axes[2].set_title("Two distinct void classes at 3 m\n"
-                       "(vegetation is recoverable; water is not)")
+                       "(vegetation is recoverable; water is not).\n"
+                       "Green strips = vegetated levee toe and berm, NOT the crown")
     axes[2].legend(handles=[
         Line2D([], [], marker="s", ls="", ms=10, mfc="#e8e8e8", mec="grey",
                label="ground present — 52.9%"),
         Line2D([], [], marker="s", ls="", ms=10, mfc="#4c9f70", mec="none",
-               label="returns, none ground — 41.0%"),
+               label="returns, none ground — 41.0% (toe/berm vegetation)"),
         Line2D([], [], marker="s", ls="", ms=10, mfc="#2b5d9e", mec="none",
                label="no returns at all — 6.1%"),
     ], loc="lower left", fontsize=8, framealpha=0.9)
@@ -182,9 +204,11 @@ def fig01_coverage():
         ax.tick_params(labelsize=8)
         add_scalebar(ax, 200)
         add_north_arrow(ax)
+        mark_s151(ax)
     axes[0].set_ylabel("Northing (m, EPSG:6350)")
-    fig.suptitle("Coverage, not density, is the binding constraint at S-151",
-                 fontsize=13)
+    fig.suptitle("Coverage, not density, is the binding constraint at S-151\n"
+                 "The SE corner has TWO causes: the S-151 structure (panel 2) "
+                 "and single-swath coverage (panel 1)", fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     save(fig, "fig01_coverage.png")
 

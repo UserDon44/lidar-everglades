@@ -1,0 +1,55 @@
+Vertical offset between the two flight lines, measured on vendor ground points
+==============================================================================
+generated : 2026-08-11T09:49:33
+script    : scripts/measure_swath_offset.py
+git commit: c27e888
+
+PARAMETERS -- the choices that define this measurement
+------------------------------------------------------------------------------
+  swaths                 : PointSourceId 34012 (north) and 34101 (south)
+  time gap               : 71,229 s = 19.8 hours between passes
+  points                 : vendor Classification[2:2] only
+  grid                   : 333x333 @ 3.0 m, origin 1557000.0/456000.0 (explicit)
+  window_size            : 0 -- no IDW fallback, so every compared cell was actually observed by that swath
+  compared cells         : ground count > 0 in BOTH swaths
+  why not per-swath SMRF : smrf/elm anchor their grids to the input extent; two swaths have different extents, and a 1.5 m extent shift alone changes 93% of cells
+  regions                : marsh and crest reported separately; the crest has ~6x the ground density and would dominate a pooled spread
+  bears on               : the 0.081 m marsh agreement figure, which is presented as classification disagreement
+------------------------------------------------------------------------------
+A number here without its parameters above is not reproducible.
+==============================================================================
+
+swath 34012: 56,033 cells with ground returns
+swath 34101: 67,481 cells with ground returns
+
+overlap: 21,764 cells observed by BOTH swaths (19.6% of tile)
+  northing range of overlap: 456378 to 456774 m
+
+==============================================================================
+ELEVATION DIFFERENCE, swath 34101 (south) minus 34012 (north)
+==============================================================================
+region                     cells      mean    median      std     RMSE        t
+------------------------------------------------------------------------------
+all overlap               21,764   -0.0028   -0.0024   0.0292   0.0293    -14.1
+marsh only                21,723   -0.0027   -0.0024   0.0285   0.0287    -14.0
+crest only                    41   -0.0444   -0.0459   0.1376   0.1430     -2.1
+==============================================================================
+
+INTERPRETATION
+
+  Marsh mean offset -0.0027 m between passes flown 19.8 hours apart.
+
+  With 21,723 cells the t-statistic is large for almost any offset, so
+  significance is not the question -- magnitude is. Compare against:
+
+    published marsh agreement (this surface vs vendor) : 0.0807 m RMSE
+    intrinsic SMRF grid-phase sensitivity              : 0.055 m
+    inter-swath offset measured here                   : 0.0027 m mean,
+                                                         0.0287 m RMSE
+
+  An inter-swath disagreement is present in BOTH the vendor surface and
+  this one, since both are built from all returns regardless of swath. It
+  is therefore a component of the 0.0807 m figure that is NOT
+  classification disagreement, and the memo should say so rather than
+  attributing the whole spread to classification.
+

@@ -513,3 +513,35 @@ corrected, this one could only be discarded and replaced. Recorded here
 because the temptation is to treat it as a rounding quibble; it is not.
 It is the second instance in this work of exactly this loss, after the
 predecessor project's CHM cluster count of 13 with no search radius.
+
+
+## A confident reading is not a measurement (second instance)
+
+2026-08-11. Looking at the rendered figures, the reviewer proposed that
+the green "returns, none ground" strips flanking the canal in fig01 were
+the levee crown — the crown truncation seen in classification space
+rather than elevation space. It was a good hypothesis: the strips sit
+where fig06 shows the embankment, and it would have tied two figures into
+one finding.
+
+**Measured and refuted.** Only 6 of 706 crest cells are green (0.85%),
+green cells sit at **+0.073 m** above marsh against the crown's
+**+2.369 m**, and the crest is *less* green than the tile average (0.8%
+vs 3.6%) — the vendor classifies ground on the crown readily, at a median
+41 returns per cell. The strips are the vegetated toe and berm flanking
+the levee, enriched 9–51 m out from the crest but at marsh elevation.
+
+**How the error was made, since that is the reusable part**: it was
+asserted from *spatial proximity across two figures* — the strips are
+near where the embankment is — rather than from any measurement relating
+the two. That is the same shape as the retracted hill artifact: a
+plausible reading of a render, held confidently, never checked against
+the underlying data.
+
+This is the second instance of that specific failure, and it is worth
+noting the reviewer made it this time and the author made it last time.
+Neither direction is protective. **Reviewer confidence is not evidence**,
+and "it lines up in the picture" is a hypothesis, not a result. In the
+same session the reviewer's *other* two readings — the SE corner being
+S-151, and the crown speckle being suspect — were both worth acting on,
+and one was confirmed. Good instincts still need the measurement.

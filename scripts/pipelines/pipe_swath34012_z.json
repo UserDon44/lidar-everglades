@@ -1,0 +1,28 @@
+{
+  "pipeline": [
+    {
+      "type": "readers.las",
+      "filename": "C:/Users/ryans/lidar-everglades/data/raw/USGS_LPC_FL_Southeast_2018_D18_SUPPLEMENTAL_e1557n0456.laz"
+    },
+    {
+      "type": "filters.range",
+      "limits": "Classification[2:2]"
+    },
+    {
+      "type": "filters.range",
+      "limits": "PointSourceId[34012:34012]"
+    },
+    {
+      "type": "writers.gdal",
+      "filename": "C:/Users/ryans/lidar-everglades/output/dem/swath34012_z_3m.tif",
+      "resolution": 3.0,
+      "output_type": "idw",
+      "origin_x": 1557000.0,
+      "origin_y": 456000.0,
+      "width": 333,
+      "height": 333,
+      "nodata": -9999,
+      "window_size": 0
+    }
+  ]
+}
