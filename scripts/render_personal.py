@@ -29,19 +29,8 @@ import os
 import sys
 from pathlib import Path
 
-_ENV = Path(r"C:\Users\ryans\miniforge3\envs\lidar")
-for _d in (_ENV / "Library" / "bin", _ENV / "Library" / "mingw-w64" / "bin",
-            _ENV / "Scripts", _ENV):
-    if _d.is_dir():
-        try:
-            os.add_dll_directory(str(_d))
-        except (AttributeError, OSError):
-            pass
-os.environ["PATH"] = os.pathsep.join(
-    [str(_ENV), str(_ENV / "Library" / "bin"), str(_ENV / "Scripts"),
-     os.environ.get("PATH", "")])
-os.environ.setdefault("GDAL_DATA", str(_ENV / "Library" / "share" / "gdal"))
-os.environ.setdefault("PROJ_LIB", str(_ENV / "Library" / "share" / "proj"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import env_bootstrap  # noqa: F401,E402  -- MUST precede numpy/rasterio
 
 import numpy as np
 import rasterio

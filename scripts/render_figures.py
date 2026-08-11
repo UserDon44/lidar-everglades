@@ -26,30 +26,8 @@ import os
 import sys
 from pathlib import Path
 
-# ----------------------------------------------------------------------
-# ENVIRONMENT BOOTSTRAP -- must run BEFORE importing matplotlib/rasterio.
-#
-# Running this env's python without an activated shell fails at import
-# with EXIT CODE 127 AND NO TRACEBACK: it is a DLL resolution failure,
-# not a Python exception, so nothing is printed and the script simply
-# vanishes. Python 3.8+ on Windows no longer searches PATH for extension
-# module DLLs, so os.add_dll_directory is required -- setting PATH alone
-# is not enough. Documented in the predecessor project after the same
-# symptom cost real debugging time.
-# ----------------------------------------------------------------------
-_ENV = Path(r"C:\Users\ryans\miniforge3\envs\lidar")
-for _d in (_ENV / "Library" / "bin", _ENV / "Library" / "mingw-w64" / "bin",
-            _ENV / "Scripts", _ENV):
-    if _d.is_dir():
-        try:
-            os.add_dll_directory(str(_d))
-        except (AttributeError, OSError):
-            pass
-os.environ["PATH"] = os.pathsep.join(
-    [str(_ENV), str(_ENV / "Library" / "bin"), str(_ENV / "Scripts"),
-     os.environ.get("PATH", "")])
-os.environ.setdefault("GDAL_DATA", str(_ENV / "Library" / "share" / "gdal"))
-os.environ.setdefault("PROJ_LIB", str(_ENV / "Library" / "share" / "proj"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import env_bootstrap  # noqa: F401,E402  -- MUST precede numpy/rasterio
 
 import numpy as np
 import rasterio

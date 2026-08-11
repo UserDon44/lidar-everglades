@@ -675,3 +675,72 @@ elevation *distribution* rather than local gradients:
 
 **Do not add D8 later to match project one's structure.** The absence is
 the result.
+
+
+## Environment bootstrap is a shared module, not a copy-paste
+
+`scripts/env_bootstrap.py`. Import it **before** numpy, rasterio or
+matplotlib:
+
+```python
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import env_bootstrap  # noqa: F401  -- MUST precede numpy/rasterio
+```
+
+Without it, this env's python.exe fails at the first native-extension
+import with **exit 127 and no traceback** — a loader-level DLL resolution
+failure, not a Python exception, so the script prints nothing and looks
+like it did nothing. Python 3.8+ on Windows ignores PATH for extension
+DLLs, so `os.add_dll_directory` is required; PATH is still set because
+the GDAL/PDAL command-line tools and subprocess calls need it.
+
+It is a bare import with a side effect rather than a function to call,
+because a function would be too late if the caller had already imported
+numpy above it.
+
+**Extracted after the fourth independent rediscovery** — render_figures,
+render_3d, render_personal, analyze_hydrology — each added only after
+that script silently exited 127, in one case after a full analysis had
+been written and appeared to produce nothing. Both repos now carry the
+same module. The env path is hardcoded for this machine; resolving it
+from `sys.executable` is the portable version and is deferred rather
+than guessed.
+
+---
+
+# PROJECT COMPLETE
+
+Nothing further is being added. Final state:
+
+**Deliverables** — `output/reports/qc_report.pdf` (23 pp), `README.md`,
+`qc_memo.md` (9 sections), `parameter_derivation.md`, eleven figures,
+eleven measurement dumps. Public-ready; repo is private pending a
+visibility flip.
+
+**What the project actually demonstrates**, since the retractions
+outnumber the clean results and could read as chaos rather than method:
+a defensible bare-earth surface with agreement quantified by region,
+limitations measured rather than hedged, and every published number
+traceable to a dump recording the choices behind it.
+
+**Four findings worth carrying forward:**
+
+1. Coverage, not density, sets resolution — 16.89 pts/m² of returns
+   against 1.26 pts/m² of ground, and cell size derived from a sweep.
+2. The crown truncation is a resolution floor, not a tuning failure, and
+   the two requirements behind it are irreconcilable.
+3. SMRF anchors its internal grid to the input extent, so a 1.5 m
+   boundary shift changes 93.1% of cells 200 m away.
+4. D8 does not apply here, measured: a 0.004 m median direction-deciding
+   gap against a 0.081 m noise floor.
+
+**Three retractions, each caught by a different mechanism** — a checksum
+(the `window` derivation), an automated audit (23× → 15×), and a
+re-derivation script written to test the foundation (the 2.28 m canal
+figure, which could only be discarded). All share one shape: a correct
+measurement compared against the wrong reference.
+
+**Deliberately not done**, with reasons recorded: the edge-effect
+magnitude (a measured mechanism beats an asserted number), `scalar`
+validation (inherited, labelled as such), and the NGVD29 gauge tie
+(~1.5 ft offset deserving its own treatment).

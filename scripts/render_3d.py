@@ -27,24 +27,8 @@ import re
 import sys
 from pathlib import Path
 
-# Env bootstrap, required BEFORE importing anything that loads native DLLs.
-# Without it the script exits 127 with NO traceback -- a DLL resolution
-# failure, not a Python exception, so nothing prints at all. This script
-# survived without it while it only used PyVista; adding the matplotlib
-# import for the colorbar was enough to trip it.
-_ENV = Path(r"C:\Users\ryans\miniforge3\envs\lidar")
-for _d in (_ENV / "Library" / "bin", _ENV / "Library" / "mingw-w64" / "bin",
-            _ENV / "Scripts", _ENV):
-    if _d.is_dir():
-        try:
-            os.add_dll_directory(str(_d))
-        except (AttributeError, OSError):
-            pass
-os.environ["PATH"] = os.pathsep.join(
-    [str(_ENV), str(_ENV / "Library" / "bin"), str(_ENV / "Scripts"),
-     os.environ.get("PATH", "")])
-os.environ.setdefault("GDAL_DATA", str(_ENV / "Library" / "share" / "gdal"))
-os.environ.setdefault("PROJ_LIB", str(_ENV / "Library" / "share" / "proj"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import env_bootstrap  # noqa: F401,E402  -- MUST precede numpy/rasterio
 
 import numpy as np
 import rasterio

@@ -553,3 +553,55 @@ running it on our own deliverable would have reported our known
 processing deficiency as terrain. Stating that choice in the method is
 the point; a reader who does not know which surface was used cannot
 evaluate the number.
+
+
+---
+
+## 2026-08-11 (close) — figures, hydrology, and the bootstrap cleanup
+
+Three things closed the project.
+
+**Three map figures**, filling a real asymmetry: the Everglades set was
+mostly analytical plots where San Xavier had maps. A plain hillshade base
+(fig07), a difference map (fig08) and ground density at the delivered
+cell (fig09). fig09 earned a place in the report because section 4 had
+argued cell size from a table alone; fig08 earned one because section 6
+said how much the classifications disagree but never where. fig07 stayed
+supplementary — correct, but showing strictly less than fig06.
+
+fig08's first caption claimed the levee "reads as a continuous blue
+line". It does not. Measured: 58.1% of crest cells are blue and 0.0% are
+red, so the truncation is real and visible, but only 40.5% of blue cells
+sit on the crest — most are on the steep flanks section 7.2 describes.
+The caption had been written from what I expected the figure to show,
+before opening it.
+
+**The hydrology assessment is the best work in the project**, and it
+consists of not running something. Ryan asked whether D8 applied before
+anything was computed. It does not: the gap deciding each cell's flow
+direction is median 4 mm against an 81 mm noise floor, with 99.6% of
+cells below it. Checking that took one measurement and produced a
+stronger result than a routing map would have.
+
+Two things fell out that were not expected. The 0.055 m grid-phase
+sensitivity from section 7.6 exceeds the steepest descent at 84% of
+cells — two findings recorded separately turned out to be the same
+finding. And the argument a water manager would find most damning is not
+about precision at all: S-151 is a culvert, and a DEM cannot represent a
+subsurface conveyance, so terrain routing would send water around the one
+feature the site exists for.
+
+What the terrain does support was run instead. Hypsometry gave the most
+striking number in the project — 30 cm of stage takes the tile from 5% to
+94% inundated — and needed no gradient assumption anywhere. The crest
+profile was computed on the VENDOR surface, deliberately, because ours
+truncates the crown by 0.911 m and that is exactly the quantity plotted.
+
+**The bootstrap cleanup** came last and was overdue. The same fifteen
+lines of DLL setup had been rediscovered independently four times, each
+after a script silently exited 127 — in analyze_hydrology.py's case after
+a full analysis had been written and appeared to do nothing at all. Now
+`scripts/env_bootstrap.py`, imported by all four and synced to project
+one, so project three inherits the module rather than the habit.
+
+Project two is finished.
