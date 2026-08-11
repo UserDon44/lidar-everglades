@@ -181,9 +181,50 @@ suite; use it for every API query from here.
 Full derivation in `output/reports/parameter_derivation.md`; summary and
 the retracted first attempt below.
 
-**3. Next**: QC the working DEM against the vendor surface, and decide
-whether the levee-crown truncation is acceptable for the deliverable or
-warrants a region-specific second pass.
+**3. ~~QC against the vendor surface~~ — DONE (2026-08-11).**
+`output/reports/qc_memo.md`. See "RESOLVED: QC" below.
+
+**4. Next**: figures for the memo (`output/figures/`, scale bar, north
+arrow, unit-labelled legend), then decide whether this becomes a PDF
+deliverable like project one's.
+
+## RESOLVED: QC vs. vendor (2026-08-11)
+
+`scripts/qc_vs_vendor.py`. **Agreement between two classifications, NOT
+accuracy** — there is no external control on this tile and no USGS
+vertical accuracy report for this collection. Do not quote these as
+RMSEz.
+
+| region | cells | share | mean | median | RMSE |
+|---|---|---|---|---|---|
+| pooled | 110,889 | 100% | +0.032 | +0.038 | 0.111 |
+| **marsh** | 104,947 | 94.6% | **+0.038** | +0.039 | **0.081** |
+| crest | 706 | 0.64% | −0.710 | −0.911 | 0.963 |
+| water | 5,236 | 4.72% | +0.027 | +0.028 | 0.069 |
+
+**Marsh RMSE 0.081 m is the number.** The pooled row blends real ground
+agreement with a known truncation and with two interpolations across
+ground nobody measured — never quote it. The water row measures only
+that two interpolations were computed similarly; the canal shows ~2.28 m
+where there is open water, and must not be presented as bathymetry.
+
+Regions are disjoint: water = zero returns of any kind (binmode count,
+`count_allret_3m_aligned.tif`), crest = vendor > marsh + 2.0 m (same mask
+as `measure_window_sweep.py`), marsh = the rest.
+
+**Crown truncation ACCEPTED and documented** (user decision, 2026-08-11).
+Crest sits a median 0.911 m / mean 0.710 m below vendor; median crest
+height above marsh falls 2.369 → 1.612 m. The two requirements are
+irreconcilable in one parameter set — marsh coverage needs `cell` ≥ 3 m
+(47.04% of 1 m cells hold no ground return), a 6–8 m crown needs
+`cell` ≤ 1.5 m — and that conflict **is the finding**, not a tuning
+failure.
+
+**No dual-cell composite.** It would trade a measured, bounded,
+documented limitation for an undocumented seam along a boundary that
+would itself need justifying — repeating project one's edge-effect
+problem in a new form. Do not revisit this without a reason that
+addresses the seam.
 
 ## RESOLVED: SMRF parameters (2026-08-11)
 

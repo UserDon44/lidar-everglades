@@ -268,3 +268,52 @@ that the levee crown is truncated ~0.76 m by a resolution floor. That is
 a real property of the site: the cell size needed for ground coverage in
 the marsh (3-5 m) is too coarse to resolve a 6-8 m engineered crown, and
 those two requirements point in opposite directions.
+
+---
+
+## 2026-08-11 (later still) — QC, and accepting a limitation on purpose
+
+Ryan settled the open question directly: accept the crown truncation,
+document it, no region-specific second pass. The reasoning is worth
+keeping because it is a judgement about deliverables rather than about
+code -- a dual-cell composite would trade a *documented* limitation for
+an *undocumented* seam, which is project one's edge-effect problem
+wearing new clothes. A bounded 0.76 m truncation on 0.64% of the tile,
+stated in the memo, beats a discontinuity nobody has characterized.
+
+**The QC needed regions, not a single number.** Split into three disjoint
+populations: water (zero returns of any kind), crest (the levee top), and
+marsh (everything else, 94.6% of the tile).
+
+  marsh   RMSE 0.081 m, mean +0.038  <- the meaningful figure
+  crest   mean -0.710 m, median -0.911 m
+  water   RMSE 0.069 m
+  pooled  RMSE 0.111 m               <- meaningless, do not quote
+
+The pooled row is the trap. It averages genuine ground agreement together
+with a truncation we deliberately accepted and with two interpolations
+across ground neither surface measured. It would have looked like a
+perfectly respectable headline number, and it answers no question anyone
+would actually ask.
+
+The water row deserves the same suspicion for the opposite reason. It
+looks like excellent agreement -- 0.069 m -- but neither surface observed
+the canal bed. It measures only that two interpolations were computed
+similarly. The memo says explicitly that the canal appears at ~2.28 m
+where there is open water and must not be read as bathymetry.
+
+**Framing the whole thing as agreement, not accuracy.** There is no
+external control on this tile and no USGS vertical accuracy report for
+this collection, so nothing here is an NVA in the ASPRS sense. Both
+surfaces could carry the same bias and these statistics would not show
+it. Said plainly in section 1 because 0.081 m looks exactly like an
+RMSEz and will be read as one otherwise -- the same discipline that made
+project one source its vertical datum to a sealed document instead of
+assuming it.
+
+Memo written at `output/reports/qc_memo.md`, with the numbers typed in
+while they were on screen rather than reconstructed from rasters later.
+That rule has now been paid for twice in project one; not repeating it
+here.
+
+Next: figures, then a decision on whether this becomes a PDF deliverable.
