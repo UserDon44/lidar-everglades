@@ -5,6 +5,8 @@
       "Read",
       "Glob",
       "Grep",
+      "Edit(**/*.md)",
+      "Write(**/*.md)",
       "Bash(git status*)",
       "Bash(git log*)",
       "Bash(git diff*)",
@@ -33,6 +35,20 @@
       "Write(./output/reports/**)",
       "Edit(./output/reports/**)",
       "Write(./data/raw/**)",
+      "Edit(**/.gitignore)",
+      "Write(**/.gitignore)",
+      "Edit(**/*.json)",
+      "Write(**/*.json)",
+      "Edit(**/*.toml)",
+      "Write(**/*.toml)",
+      "Edit(**/*.yaml)",
+      "Write(**/*.yaml)",
+      "Edit(**/*.yml)",
+      "Write(**/*.yml)",
+      "Edit(**/*.ini)",
+      "Write(**/*.ini)",
+      "Edit(**/*.cfg)",
+      "Write(**/*.cfg)",
       "Bash(git commit*)",
       "Bash(git push*)",
       "Bash(pip install*)",
@@ -69,7 +85,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_destructive.py\"",
+            "command": "\"C:/Users/ryans/miniforge3/envs/lidar/python.exe\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_destructive.py\"",
             "timeout": 15,
             "statusMessage": "checking command safety"
           }
@@ -82,7 +98,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/check_deliverable_numbers.py\"",
+            "command": "\"C:/Users/ryans/miniforge3/envs/lidar/python.exe\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_deliverable_numbers.py\"",
             "timeout": 60,
             "statusMessage": "tracing deliverable numbers"
           }
