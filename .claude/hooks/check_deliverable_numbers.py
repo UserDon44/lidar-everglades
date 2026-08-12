@@ -63,7 +63,7 @@ Its presence therefore means "someone executed this code at some point",
 NOT "the hook fired on save". Do not read it as coverage.
 
 That distinction is not hypothetical. From configuration until
-2026-08-12 this hook NEVER EXECUTED as a hook in any project: it was
+2026-08-11 this hook NEVER EXECUTED as a hook in any project: it was
 invoked as "$CLAUDE_PROJECT_DIR/.claude/hooks/x.py", relying on the
 #!/usr/bin/env python3 shebang, which on this machine resolves to the
 Windows Store stub -- "Python was not found", exit 49. Every deliverable
@@ -80,7 +80,7 @@ To confirm the hook is actually live, do not look for this file. Edit a
 file under output/reports/ containing a number and check that PostToolUse
 context comes back. A number-free edit produces silence that is
 indistinguishable from a dead hook -- that mistake was made three times
-in a row on 2026-08-12.
+in a row on 2026-08-11.
 """
 import json
 import re

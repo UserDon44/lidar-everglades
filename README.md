@@ -140,7 +140,7 @@ into `output/reports/` and traces it back to an artifact that derives it.
 It is real, it found four defects in itself during development, and it
 caught the `23×` → `15×` baseline error before I did.
 
-**It never ran as a hook.** From configuration until 2026-08-12 it was
+**It never ran as a hook.** From configuration until 2026-08-11 it was
 invoked via its `#!/usr/bin/env python3` shebang, which on this machine
 resolves to the Windows Store stub — `"Python was not found"`, exit 49.
 A `PreToolUse` hook exiting non-2 is a *non-blocking* error, so the

@@ -480,7 +480,7 @@ everywhere. The conclusion stands; only its magnitude was inflated.
 ## The deliverable-number audit was INERT for this project's whole life
 
 **Every deliverable in this repo was produced without the automated
-number check running.** Discovered 2026-08-12.
+number check running.** Discovered 2026-08-11.
 
 The hook was built here, tested here, and found four real defects in
 itself here — and it was then wired in a way that never executed. Both
