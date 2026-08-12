@@ -61,15 +61,25 @@ were wrong and the regression suite corrected them (29 cases, 0 failures,
          boundary -- `>` or `>>` on line 1 and the protected path in a
          heredoc body several lines down. That was the actual false
          positive, and it is the whole of what changed.
-  loses: a split that separates a command from its flags, i.e.
-         `rm \` + newline + `  -rf /path`.
+  loses: THREE continuation forms, not one. The first draft of this note
+         recorded only the flags case and understated the cost:
 
-That single loss is accepted knowingly. The scope note below already
+           rm \        + newline +  -rf /tmp/x     command from FLAGS
+           mv \        + newline +  data/raw/x /t  command from TARGET
+           cat foo > \ + newline +  data/raw/x     redirect from TARGET
+
+         Two of the three separate a command from its TARGET PATH, and
+         that is arguably the likelier accident — long paths get wrapped
+         far more often than short flags do.
+
+Those three losses are accepted knowingly. The scope note below already
 concedes the guard is evadable by variables, aliases and indirection, so
-trading one more route that requires deliberate line-splitting for the
+trading three routes that all require deliberate line-splitting for the
 removal of a whole false-positive family is the better bargain. Recorded
 rather than absorbed silently: a guard whose coverage quietly shrinks is
-worse than one whose limits are written down.
+worse than one whose limits are written down — and this note had to be
+corrected once already, which is the argument for asserting the losses in
+`scripts/test_guard.py` rather than describing them in prose.
 
 SCOPE, STATED HONESTLY
 ----------------------
@@ -147,6 +157,57 @@ RULES = [
 ]
 
 
+_HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
+_MSG = re.compile(r"(-m|--message)(\s+)(['\"])(?:\\.|(?!\3).)*\3", re.S)
+
+
+def strip_payload_text(cmd):
+    """Remove document bodies before scanning, keeping the command itself.
+
+    THE ROOT CAUSE OF FIVE FALSE POSITIVES
+    --------------------------------------
+    Every one was DATA inside a command string being scanned as shell:
+    `--porcelain` read as a flag, and four cases of prose read as
+    commands. Bounding rules to a line fixed only the subset where the
+    trigger straddled a newline; text like "Never run rm -rf on the
+    archive" sits on ONE line and kept blocking.
+
+    That matters here more than in most repos, because this project
+    documents dangerous commands constantly -- the guard could not tell
+    DOING a thing from WRITING ABOUT one, and writing about them is the
+    daily activity. A guard that blocks a read-only regex test because a
+    test-case string mentions a force push is one people route around,
+    and a routed-around guard is the inert-hook failure by a slower road.
+
+    So: heredoc bodies (`<<DELIM` ... `DELIM`) and quoted `-m`/`--message`
+    bodies are removed, and the remaining command text is scanned.
+
+    RESIDUAL HOLE, RECORDED
+    -----------------------
+    A heredoc piped to an interpreter -- `bash <<'EOF' ... EOF` -- now has
+    its body stripped, so a destructive command inside it escapes. That is
+    accepted: this guard is scoped to accidents, not adversaries (see
+    SCOPE below), and accidentally *documenting* `rm -rf` is far likelier
+    than accidentally *executing* a heredoc. Anyone piping a heredoc to a
+    shell is not being absent-minded.
+    """
+    if not cmd:
+        return cmd
+    out = cmd
+    # heredocs: drop from the end of the introducing line to the terminator
+    for m in list(_HEREDOC.finditer(out)):
+        delim = m.group(2)
+        nl = out.find("\n", m.end())
+        if nl == -1:
+            continue
+        term = re.search(rf"^\s*{re.escape(delim)}\s*$", out[nl:], re.M)
+        end = nl + (term.end() if term else len(out) - nl)
+        out = out[:nl] + "\n" + out[end:]
+    # quoted -m / --message bodies
+    out = _MSG.sub(lambda m: m.group(1) + m.group(2) + m.group(3) * 2, out)
+    return out
+
+
 def main():
     try:
         payload = json.load(sys.stdin)
@@ -163,8 +224,12 @@ def main():
     if not isinstance(cmd, str) or not cmd.strip():
         return 0
 
+    # Scan the COMMAND, not the documents it carries. See
+    # strip_payload_text() for why, and for the residual hole this opens.
+    scanned = strip_payload_text(cmd)
+
     for pattern, why in RULES:
-        if re.search(pattern, cmd, re.IGNORECASE):
+        if re.search(pattern, scanned, re.IGNORECASE):
             print(json.dumps({
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",
