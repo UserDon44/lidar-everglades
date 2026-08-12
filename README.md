@@ -133,6 +133,29 @@ Each failed the same way: a correct measurement compared against the
 wrong reference. That pattern, and the checks now in place for it, are
 documented in `CLAUDE.md`.
 
+### The automated number check was inert while this project was written
+
+`.claude/hooks/check_deliverable_numbers.py` audits every number written
+into `output/reports/` and traces it back to an artifact that derives it.
+It is real, it found four defects in itself during development, and it
+caught the `23×` → `15×` baseline error before I did.
+
+**It never ran as a hook.** From configuration until 2026-08-12 it was
+invoked via its `#!/usr/bin/env python3` shebang, which on this machine
+resolves to the Windows Store stub — `"Python was not found"`, exit 49.
+A `PreToolUse` hook exiting non-2 is a *non-blocking* error, so the
+companion `guard_destructive.py` silently did not guard either.
+
+**`.claude/hooks/last_number_audit.txt` exists in this repo and is not
+evidence the hook ran.** The script writes that file, and the script can
+be run by hand — which is what produced it. An artifact that implies
+coverage it never provided is worse than no artifact, so: the audits this
+project cites were **manual and deliberate, not automatic per-write**.
+Their findings stand. The coverage does not.
+
+Fixed by invoking an explicit interpreter path, and verified firing live
+afterwards rather than merely configured.
+
 ## Limitations
 
 1. **Crown truncation**, median 0.911 m — resolution floor, see above.

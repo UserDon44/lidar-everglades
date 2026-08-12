@@ -52,7 +52,19 @@ RULES = [
         "remote history; push normally, or rebase and open a PR.",
     ),
     (
-        r"\brm\b(?=.*\s-{1,2}[a-z-]*r)(?=.*\s-{1,2}[a-z-]*f)",
+        # A short flag cluster is a SINGLE dash followed by letters, hence
+        # `-(?!-)[a-z]*r`; long flags must match EXACTLY. The previous
+        # `-{1,2}[a-z-]*r` matched the r inside ANY long flag, so
+        # `--porcelain` read as a recursive flag and blocked
+        # `rm -f x && git status --porcelain`.
+        #
+        # The scan is also limited to rm's OWN command segment, [^|;&]*,
+        # the way every other rule here already was -- this rule's `.*`
+        # reached across && into unrelated commands, so `rm -f x && tar -r y`
+        # blocked too.
+        r"\brm\b"
+        r"(?=[^|;&]*(?:\s-(?!-)[a-z]*r|\s--recursive\b))"
+        r"(?=[^|;&]*(?:\s-(?!-)[a-z]*f|\s--force\b))",
         "rm with both recursive and force flags, in any spelling "
         "(-rf, -fr, -r -f, --recursive --force).",
     ),
@@ -67,7 +79,13 @@ RULES = [
         "delivered source tile.",
     ),
     (
-        r"\bcp\b[^|;&]*\s-{1,2}[a-z-]*f[^|;&]*\bdata[/\\]raw\b",
+        # Same flag-matching fix as rm: `--profile` contains an f and was
+        # read as --force. Also switched to lookaheads so the flag no
+        # longer has to appear BEFORE the data/raw operand -- the old form
+        # let `cp data/raw/x.laz y.laz -f` through entirely.
+        r"\bcp\b"
+        r"(?=[^|;&]*(?:\s-(?!-)[a-z]*f|\s--force\b))"
+        r"(?=[^|;&]*\bdata[/\\]raw\b)",
         "cp -f into data/raw, which would overwrite a delivered source "
         "tile.",
     ),

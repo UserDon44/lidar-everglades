@@ -477,6 +477,36 @@ above vendor. 23× is 2.34% ÷ 0.10%, but 0.10% is the `w6`–`w50` tail —
 the delivered run is `w3`, tail 0.15%, giving **15×**. Corrected
 everywhere. The conclusion stands; only its magnitude was inflated.
 
+## The deliverable-number audit was INERT for this project's whole life
+
+**Every deliverable in this repo was produced without the automated
+number check running.** Discovered 2026-08-12.
+
+The hook was built here, tested here, and found four real defects in
+itself here — and it was then wired in a way that never executed. Both
+hooks were invoked as `"$CLAUDE_PROJECT_DIR/.claude/hooks/x.py"`, relying
+on the `#!/usr/bin/env python3` shebang. On this machine that resolves to
+the Windows Store stub: `"Python was not found"`, exit 49. A `PreToolUse`
+hook exiting non-2 is a *non-blocking* error, so `guard_destructive.py`
+silently did not guard either.
+
+`.claude/hooks/last_number_audit.txt` does exist in this repo, which
+looks like evidence the hook ran. **It is not.** It was written by
+running the script by hand during development, not by the hook firing.
+
+**This does not invalidate the audits — they were run.** The 172-number
+sweep happened and its findings stand. The `23×` → `15×` baseline error
+(wrong denominator: the `w6`–`w50` tail at 0.10% instead of the delivered
+run's 0.15%) was caught by a **manual** run of the audit, not by the hook
+firing on save. Same for the `58%` → `53%` fix in
+`parameter_derivation.md`.
+
+So: the coverage was real but **manual and one-off**, not automatic and
+per-write. Recording it so no later session assumes otherwise.
+
+Fixed by invoking an explicit interpreter path. Verified firing live
+afterwards, not merely configured.
+
 ## Gitignore does not apply to already-tracked files
 
 Found 2026-08-11 in the portfolio repo. `.claude/` had been gitignored

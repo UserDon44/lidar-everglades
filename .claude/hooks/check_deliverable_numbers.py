@@ -55,6 +55,32 @@ quietly adjusted until it passes is worse than no check, because it
 still looks like verification.
 
 Full detail is written to .claude/hooks/last_number_audit.txt.
+
+READING last_number_audit.txt: IT IS NOT PROOF THIS HOOK RAN
+------------------------------------------------------------
+The file is written by this script, and this script can be run by hand.
+Its presence therefore means "someone executed this code at some point",
+NOT "the hook fired on save". Do not read it as coverage.
+
+That distinction is not hypothetical. From configuration until
+2026-08-12 this hook NEVER EXECUTED as a hook in any project: it was
+invoked as "$CLAUDE_PROJECT_DIR/.claude/hooks/x.py", relying on the
+#!/usr/bin/env python3 shebang, which on this machine resolves to the
+Windows Store stub -- "Python was not found", exit 49. Every deliverable
+in the San Xavier and Everglades projects was written with this check
+inert. The audits those projects cite were real but MANUAL: a person ran
+this script deliberately. The 23x-vs-15x baseline error was caught that
+way, not by a save triggering the hook.
+
+An artifact that implies coverage it never provided is worse than no
+artifact, which is why this paragraph is here rather than only in
+CLAUDE.md.
+
+To confirm the hook is actually live, do not look for this file. Edit a
+file under output/reports/ containing a number and check that PostToolUse
+context comes back. A number-free edit produces silence that is
+indistinguishable from a dead hook -- that mistake was made three times
+in a row on 2026-08-12.
 """
 import json
 import re
@@ -285,27 +311,6 @@ def main():
     index, documented, rounded = gather_artifacts(root)
 
     untraced, ambiguous, traced = [], [], []
-    # Annotation scope is the PARAGRAPH, not the line. Markdown soft-wraps
-    # prose, so "[cited: ...]" routinely lands on a different line from the
-    # number it attributes -- this defeated three separate citations before
-    # being fixed. A paragraph is the natural unit of attribution: a
-    # sentence naming its source covers the sentences around it.
-    #
-    # The risk is an over-broad annotation exempting a whole block, so the
-    # count of numbers each annotation covers is reported. A citation that
-    # silently exempts thirty numbers should be visible, not convenient.
-    cited_blocks = 0
-    cited_numbers = 0
-    blocks = re.split(r"\n\s*\n", text)
-    kept = []
-    for blk in blocks:
-        if ANNOTATED_RE.search(blk):
-            cited_blocks += 1
-            cited_numbers += len(NUM_RE.findall(mask_exempt(blk)))
-            continue
-        kept.append(blk)
-    text = "\n\n".join(kept)
-
     in_cited_table = False
     for raw_line in text.splitlines():
         stripped = raw_line.strip()
@@ -354,8 +359,6 @@ def main():
 
     lines = [
         f"deliverable number audit -- {getattr(target, 'name', target)}",
-        f"  {cited_blocks} annotated block(s) exempted {cited_numbers} number(s)"
-        if cited_blocks else "  no [cited:]/[tool output] annotations",
         f"  traced {len(traced)} | ambiguous {len(ambiguous)} | "
         f"UNTRACED {len(untraced)}  (of {total} numbers)",
     ]
