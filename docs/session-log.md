@@ -653,3 +653,23 @@ OneDrive. Personal renders and the flyaround live on Google Drive and in
 the standalone toolkit, outside both projects.
 
 Project three has not started. Nothing here is pending.
+
+---
+
+## 2026-08-12 — tooling only, from project three's session
+
+Nothing analytical here; this project stays closed. Two hooks were added
+across all three lidar repos: a SessionStart banner naming the session
+root and the sibling repos whose hooks are consequently not loaded, and a
+SessionEnd closeout check for uncommitted paths, untouched durable
+records, and backup staleness.
+
+The reason they are installed here as well as in project three: hooks load
+from the session root only, and which repo that is has turned out to be
+easy to get wrong and invisible when wrong. Project three lost three
+sessions to it. Installing identically everywhere means the banner fires
+whichever repo is rooted.
+
+Also fixed a `.gitignore` that named `last_number_audit.txt` by exact
+filename rather than by pattern, which would have tracked both new
+run-artifacts immediately.

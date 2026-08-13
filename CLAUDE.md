@@ -841,3 +841,37 @@ Both repos mirror to OneDrive (`lidar-portfolio-backup` ~1,775 MB,
 additive — it never deletes, so a few superseded files persist there:
 two pre-rename `master` refs in each, and one replaced figure in project
 two. Git is the authoritative record; the drift is known and accepted.
+
+## SESSION TOOLING added 2026-08-12 (from project three's session)
+
+This project is complete and nothing here reopens it. Two hooks were
+installed across all three lidar repos byte-identically, because whichever
+repo Claude Code is rooted at is the one whose hooks load — so a fix that
+only lands in one repo is a fix that is usually absent.
+
+- **`.claude/hooks/session_banner.py` (SessionStart)** — states the
+  session root, names the sibling repos whose hooks are therefore NOT
+  loaded, reports whether python/pdal resolve by explicit path, and flags
+  a stale OneDrive backup.
+- **`.claude/hooks/session_closeout.py` (SessionEnd)** — reports
+  uncommitted paths, whether `CLAUDE.md` and `docs/session-log.md` were
+  touched, and backup staleness. SessionEnd rather than `Stop`, because
+  `Stop` fires every turn and a reminder every turn is how a check gets
+  ignored and then routed around.
+
+**Why this repo needed them too.** Project three spent three sessions
+unable to determine which repo's hooks were loaded. The answer turned out
+to be `lidar-portfolio` in every case — hooks load from the session root
+only, and adding a directory does not load its settings. This repo's
+`last_number_audit.txt` (2026-08-11) is the record of the one session that
+*was* rooted here.
+
+Both hooks leave an artifact next to `last_number_audit.txt`, for the same
+reason that file matters: a hook whose only output is a message you might
+not see is indistinguishable from one that never ran.
+
+**`.gitignore` corrected in the same pass** — it excluded
+`.claude/hooks/last_number_audit.txt` by exact filename, so the two new
+artifacts would have been tracked the instant they existed. Now
+`.claude/hooks/last_*.txt` plus `__pycache__/`, verified with
+`git check-ignore`.
