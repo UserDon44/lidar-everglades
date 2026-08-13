@@ -18,7 +18,12 @@ __pycache__/
 .claude/*
 !.claude/settings.json
 !.claude/hooks/
-.claude/hooks/last_number_audit.txt
+# Hook run-artifacts: regenerated every session, never source.
+# This was previously a single exact filename, so two new artifacts
+# (last_session_banner.txt, last_closeout_check.txt) slipped straight
+# into a commit. A pattern, not a list of names.
+.claude/hooks/last_*.txt
+.claude/hooks/__pycache__/
 
 # The non-deliverable marker is tracked; the renders themselves are not.
 !output/renders_personal/
