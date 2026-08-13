@@ -79,6 +79,30 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:/Users/ryans/miniforge3/envs/lidar/python.exe\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_banner.py\"",
+            "timeout": 20,
+            "statusMessage": "reporting session root"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:/Users/ryans/miniforge3/envs/lidar/python.exe\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_closeout.py\"",
+            "timeout": 30,
+            "statusMessage": "closeout check"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash|PowerShell",
